@@ -2,6 +2,10 @@ export const typeDefs = /* GraphQL */ `type AggregateAmenities {
   count: Int!
 }
 
+type AggregateBar {
+  count: Int!
+}
+
 type AggregateBooking {
   count: Int!
 }
@@ -591,6 +595,102 @@ input AmenitiesWhereInput {
 }
 
 input AmenitiesWhereUniqueInput {
+  id: ID
+}
+
+type Bar {
+  id: ID!
+  bar: String
+}
+
+type BarConnection {
+  pageInfo: PageInfo!
+  edges: [BarEdge]!
+  aggregate: AggregateBar!
+}
+
+input BarCreateInput {
+  bar: String
+}
+
+type BarEdge {
+  node: Bar!
+  cursor: String!
+}
+
+enum BarOrderByInput {
+  id_ASC
+  id_DESC
+  bar_ASC
+  bar_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type BarPreviousValues {
+  id: ID!
+  bar: String
+}
+
+type BarSubscriptionPayload {
+  mutation: MutationType!
+  node: Bar
+  updatedFields: [String!]
+  previousValues: BarPreviousValues
+}
+
+input BarSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: BarWhereInput
+  AND: [BarSubscriptionWhereInput!]
+  OR: [BarSubscriptionWhereInput!]
+  NOT: [BarSubscriptionWhereInput!]
+}
+
+input BarUpdateInput {
+  bar: String
+}
+
+input BarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  bar: String
+  bar_not: String
+  bar_in: [String!]
+  bar_not_in: [String!]
+  bar_lt: String
+  bar_lte: String
+  bar_gt: String
+  bar_gte: String
+  bar_contains: String
+  bar_not_contains: String
+  bar_starts_with: String
+  bar_not_starts_with: String
+  bar_ends_with: String
+  bar_not_ends_with: String
+  AND: [BarWhereInput!]
+  OR: [BarWhereInput!]
+  NOT: [BarWhereInput!]
+}
+
+input BarWhereUniqueInput {
   id: ID
 }
 
@@ -2623,6 +2723,12 @@ type Mutation {
   upsertGuestRequirements(where: GuestRequirementsWhereUniqueInput!, create: GuestRequirementsCreateInput!, update: GuestRequirementsUpdateInput!): GuestRequirements!
   deleteGuestRequirements(where: GuestRequirementsWhereUniqueInput!): GuestRequirements
   deleteManyGuestRequirementses(where: GuestRequirementsWhereInput): BatchPayload!
+  createBar(data: BarCreateInput!): Bar!
+  updateBar(data: BarUpdateInput!, where: BarWhereUniqueInput!): Bar
+  updateManyBars(data: BarUpdateInput!, where: BarWhereInput): BatchPayload!
+  upsertBar(where: BarWhereUniqueInput!, create: BarCreateInput!, update: BarUpdateInput!): Bar!
+  deleteBar(where: BarWhereUniqueInput!): Bar
+  deleteManyBars(where: BarWhereInput): BatchPayload!
   createPolicies(data: PoliciesCreateInput!): Policies!
   updatePolicies(data: PoliciesUpdateInput!, where: PoliciesWhereUniqueInput!): Policies
   updateManyPolicieses(data: PoliciesUpdateInput!, where: PoliciesWhereInput): BatchPayload!
@@ -5264,6 +5370,9 @@ type Query {
   guestRequirements(where: GuestRequirementsWhereUniqueInput!): GuestRequirements
   guestRequirementses(where: GuestRequirementsWhereInput, orderBy: GuestRequirementsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [GuestRequirements]!
   guestRequirementsesConnection(where: GuestRequirementsWhereInput, orderBy: GuestRequirementsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): GuestRequirementsConnection!
+  bar(where: BarWhereUniqueInput!): Bar
+  bars(where: BarWhereInput, orderBy: BarOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Bar]!
+  barsConnection(where: BarWhereInput, orderBy: BarOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): BarConnection!
   policies(where: PoliciesWhereUniqueInput!): Policies
   policieses(where: PoliciesWhereInput, orderBy: PoliciesOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Policies]!
   policiesesConnection(where: PoliciesWhereInput, orderBy: PoliciesOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PoliciesConnection!
@@ -5848,6 +5957,7 @@ type Subscription {
   place(where: PlaceSubscriptionWhereInput): PlaceSubscriptionPayload
   pricing(where: PricingSubscriptionWhereInput): PricingSubscriptionPayload
   guestRequirements(where: GuestRequirementsSubscriptionWhereInput): GuestRequirementsSubscriptionPayload
+  bar(where: BarSubscriptionWhereInput): BarSubscriptionPayload
   policies(where: PoliciesSubscriptionWhereInput): PoliciesSubscriptionPayload
   houseRules(where: HouseRulesSubscriptionWhereInput): HouseRulesSubscriptionPayload
   views(where: ViewsSubscriptionWhereInput): ViewsSubscriptionPayload

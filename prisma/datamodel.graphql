@@ -71,6 +71,11 @@ type GuestRequirements {
   place: Place!
 }
 
+type Bar {
+  id: ID! @unique
+  bar: String
+}
+
 type Policies {
   id: ID! @unique
   createdAt: DateTime!

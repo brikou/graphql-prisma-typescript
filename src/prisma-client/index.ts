@@ -13,6 +13,7 @@ export interface Exists {
   place: (where?: PlaceWhereInput) => Promise<boolean>;
   pricing: (where?: PricingWhereInput) => Promise<boolean>;
   guestRequirements: (where?: GuestRequirementsWhereInput) => Promise<boolean>;
+  bar: (where?: BarWhereInput) => Promise<boolean>;
   policies: (where?: PoliciesWhereInput) => Promise<boolean>;
   houseRules: (where?: HouseRulesWhereInput) => Promise<boolean>;
   views: (where?: ViewsWhereInput) => Promise<boolean>;
@@ -150,6 +151,29 @@ export interface Prisma {
       last?: Int;
     }
   ) => GuestRequirementsConnection;
+  bar: (where: BarWhereUniqueInput) => Bar;
+  bars: (
+    args?: {
+      where?: BarWhereInput;
+      orderBy?: BarOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => Promise<Array<BarNode>>;
+  barsConnection: (
+    args?: {
+      where?: BarWhereInput;
+      orderBy?: BarOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => BarConnection;
   policies: (where: PoliciesWhereUniqueInput) => Policies;
   policieses: (
     args?: {
@@ -675,6 +699,22 @@ export interface Prisma {
   deleteManyGuestRequirementses: (
     where?: GuestRequirementsWhereInput
   ) => BatchPayload;
+  createBar: (data: BarCreateInput) => Bar;
+  updateBar: (
+    args: { data: BarUpdateInput; where: BarWhereUniqueInput }
+  ) => Bar;
+  updateManyBars: (
+    args: { data: BarUpdateInput; where?: BarWhereInput }
+  ) => BatchPayload;
+  upsertBar: (
+    args: {
+      where: BarWhereUniqueInput;
+      create: BarCreateInput;
+      update: BarUpdateInput;
+    }
+  ) => Bar;
+  deleteBar: (where: BarWhereUniqueInput) => Bar;
+  deleteManyBars: (where?: BarWhereInput) => BatchPayload;
   createPolicies: (data: PoliciesCreateInput) => Policies;
   updatePolicies: (
     args: { data: PoliciesUpdateInput; where: PoliciesWhereUniqueInput }
@@ -1044,6 +1084,9 @@ export interface Subscription {
   guestRequirements: (
     where?: GuestRequirementsSubscriptionWhereInput
   ) => GuestRequirementsSubscriptionPayloadSubscription;
+  bar: (
+    where?: BarSubscriptionWhereInput
+  ) => BarSubscriptionPayloadSubscription;
   policies: (
     where?: PoliciesSubscriptionWhereInput
   ) => PoliciesSubscriptionPayloadSubscription;
@@ -1271,6 +1314,18 @@ export type HouseRulesOrderByInput =
   | "additionalRules_ASC"
   | "additionalRules_DESC";
 
+export type PAYMENT_PROVIDER = "PAYPAL" | "CREDIT_CARD";
+
+export type BarOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "bar_ASC"
+  | "bar_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
 export type BookingOrderByInput =
   | "id_ASC"
   | "id_DESC"
@@ -1283,29 +1338,178 @@ export type BookingOrderByInput =
   | "updatedAt_ASC"
   | "updatedAt_DESC";
 
-export type GuestRequirementsOrderByInput =
+export type PricingOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "govIssuedId_ASC"
-  | "govIssuedId_DESC"
-  | "recommendationsFromOtherHosts_ASC"
-  | "recommendationsFromOtherHosts_DESC"
-  | "guestTripInformation_ASC"
-  | "guestTripInformation_DESC"
+  | "monthlyDiscount_ASC"
+  | "monthlyDiscount_DESC"
+  | "weeklyDiscount_ASC"
+  | "weeklyDiscount_DESC"
+  | "perNight_ASC"
+  | "perNight_DESC"
+  | "smartPricing_ASC"
+  | "smartPricing_DESC"
+  | "basePrice_ASC"
+  | "basePrice_DESC"
+  | "averageWeekly_ASC"
+  | "averageWeekly_DESC"
+  | "averageMonthly_ASC"
+  | "averageMonthly_DESC"
+  | "cleaningFee_ASC"
+  | "cleaningFee_DESC"
+  | "securityDeposit_ASC"
+  | "securityDeposit_DESC"
+  | "extraGuests_ASC"
+  | "extraGuests_DESC"
+  | "weekendPricing_ASC"
+  | "weekendPricing_DESC"
+  | "currency_ASC"
+  | "currency_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
   | "updatedAt_DESC";
-
-export type PAYMENT_PROVIDER = "PAYPAL" | "CREDIT_CARD";
-
-export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
 export type PictureOrderByInput =
   | "id_ASC"
   | "id_DESC"
   | "url_ASC"
   | "url_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type CreditCardInformationOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "cardNumber_ASC"
+  | "cardNumber_DESC"
+  | "expiresOnMonth_ASC"
+  | "expiresOnMonth_DESC"
+  | "expiresOnYear_ASC"
+  | "expiresOnYear_DESC"
+  | "securityCode_ASC"
+  | "securityCode_DESC"
+  | "firstName_ASC"
+  | "firstName_DESC"
+  | "lastName_ASC"
+  | "lastName_DESC"
+  | "postalCode_ASC"
+  | "postalCode_DESC"
+  | "country_ASC"
+  | "country_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type NeighbourhoodOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "name_ASC"
+  | "name_DESC"
+  | "slug_ASC"
+  | "slug_DESC"
+  | "featured_ASC"
+  | "featured_DESC"
+  | "popularity_ASC"
+  | "popularity_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type CityOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "name_ASC"
+  | "name_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type PlaceOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "name_ASC"
+  | "name_DESC"
+  | "size_ASC"
+  | "size_DESC"
+  | "shortDescription_ASC"
+  | "shortDescription_DESC"
+  | "description_ASC"
+  | "description_DESC"
+  | "slug_ASC"
+  | "slug_DESC"
+  | "maxGuests_ASC"
+  | "maxGuests_DESC"
+  | "numBedrooms_ASC"
+  | "numBedrooms_DESC"
+  | "numBeds_ASC"
+  | "numBeds_DESC"
+  | "numBaths_ASC"
+  | "numBaths_DESC"
+  | "popularity_ASC"
+  | "popularity_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type ReviewOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "text_ASC"
+  | "text_DESC"
+  | "stars_ASC"
+  | "stars_DESC"
+  | "accuracy_ASC"
+  | "accuracy_DESC"
+  | "location_ASC"
+  | "location_DESC"
+  | "checkIn_ASC"
+  | "checkIn_DESC"
+  | "value_ASC"
+  | "value_DESC"
+  | "cleanliness_ASC"
+  | "cleanliness_DESC"
+  | "communication_ASC"
+  | "communication_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type NOTIFICATION_TYPE =
+  | "OFFER"
+  | "INSTANT_BOOK"
+  | "RESPONSIVENESS"
+  | "NEW_AMENITIES"
+  | "HOUSE_RULES";
+
+export type LocationOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "lat_ASC"
+  | "lat_DESC"
+  | "lng_ASC"
+  | "lng_DESC"
+  | "address_ASC"
+  | "address_DESC"
+  | "directions_ASC"
+  | "directions_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type ViewsOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "lastWeek_ASC"
+  | "lastWeek_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -1399,102 +1603,17 @@ export type AmenitiesOrderByInput =
   | "updatedAt_ASC"
   | "updatedAt_DESC";
 
-export type NeighbourhoodOrderByInput =
+export type MutationType = "CREATED" | "UPDATED" | "DELETED";
+
+export type GuestRequirementsOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "name_ASC"
-  | "name_DESC"
-  | "slug_ASC"
-  | "slug_DESC"
-  | "featured_ASC"
-  | "featured_DESC"
-  | "popularity_ASC"
-  | "popularity_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type ViewsOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "lastWeek_ASC"
-  | "lastWeek_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type PlaceOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "name_ASC"
-  | "name_DESC"
-  | "size_ASC"
-  | "size_DESC"
-  | "shortDescription_ASC"
-  | "shortDescription_DESC"
-  | "description_ASC"
-  | "description_DESC"
-  | "slug_ASC"
-  | "slug_DESC"
-  | "maxGuests_ASC"
-  | "maxGuests_DESC"
-  | "numBedrooms_ASC"
-  | "numBedrooms_DESC"
-  | "numBeds_ASC"
-  | "numBeds_DESC"
-  | "numBaths_ASC"
-  | "numBaths_DESC"
-  | "popularity_ASC"
-  | "popularity_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type NOTIFICATION_TYPE =
-  | "OFFER"
-  | "INSTANT_BOOK"
-  | "RESPONSIVENESS"
-  | "NEW_AMENITIES"
-  | "HOUSE_RULES";
-
-export type ReviewOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "text_ASC"
-  | "text_DESC"
-  | "stars_ASC"
-  | "stars_DESC"
-  | "accuracy_ASC"
-  | "accuracy_DESC"
-  | "location_ASC"
-  | "location_DESC"
-  | "checkIn_ASC"
-  | "checkIn_DESC"
-  | "value_ASC"
-  | "value_DESC"
-  | "cleanliness_ASC"
-  | "cleanliness_DESC"
-  | "communication_ASC"
-  | "communication_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type LocationOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "lat_ASC"
-  | "lat_DESC"
-  | "lng_ASC"
-  | "lng_DESC"
-  | "address_ASC"
-  | "address_DESC"
-  | "directions_ASC"
-  | "directions_DESC"
+  | "govIssuedId_ASC"
+  | "govIssuedId_DESC"
+  | "recommendationsFromOtherHosts_ASC"
+  | "recommendationsFromOtherHosts_DESC"
+  | "guestTripInformation_ASC"
+  | "guestTripInformation_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -1514,81 +1633,101 @@ export type PoliciesOrderByInput =
   | "checkoutTime_ASC"
   | "checkoutTime_DESC";
 
-export type CityOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "name_ASC"
-  | "name_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type CreditCardInformationOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "cardNumber_ASC"
-  | "cardNumber_DESC"
-  | "expiresOnMonth_ASC"
-  | "expiresOnMonth_DESC"
-  | "expiresOnYear_ASC"
-  | "expiresOnYear_DESC"
-  | "securityCode_ASC"
-  | "securityCode_DESC"
-  | "firstName_ASC"
-  | "firstName_DESC"
-  | "lastName_ASC"
-  | "lastName_DESC"
-  | "postalCode_ASC"
-  | "postalCode_DESC"
-  | "country_ASC"
-  | "country_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export type PricingOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "monthlyDiscount_ASC"
-  | "monthlyDiscount_DESC"
-  | "weeklyDiscount_ASC"
-  | "weeklyDiscount_DESC"
-  | "perNight_ASC"
-  | "perNight_DESC"
-  | "smartPricing_ASC"
-  | "smartPricing_DESC"
-  | "basePrice_ASC"
-  | "basePrice_DESC"
-  | "averageWeekly_ASC"
-  | "averageWeekly_DESC"
-  | "averageMonthly_ASC"
-  | "averageMonthly_DESC"
-  | "cleaningFee_ASC"
-  | "cleaningFee_DESC"
-  | "securityDeposit_ASC"
-  | "securityDeposit_DESC"
-  | "extraGuests_ASC"
-  | "extraGuests_DESC"
-  | "weekendPricing_ASC"
-  | "weekendPricing_DESC"
-  | "currency_ASC"
-  | "currency_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC";
-
-export interface AmenitiesUpsertWithoutPlaceInput {
-  update: AmenitiesUpdateWithoutPlaceDataInput;
-  create: AmenitiesCreateWithoutPlaceInput;
+export interface AmenitiesUpdateWithoutPlaceDataInput {
+  elevator?: Boolean;
+  petsAllowed?: Boolean;
+  internet?: Boolean;
+  kitchen?: Boolean;
+  wirelessInternet?: Boolean;
+  familyKidFriendly?: Boolean;
+  freeParkingOnPremises?: Boolean;
+  hotTub?: Boolean;
+  pool?: Boolean;
+  smokingAllowed?: Boolean;
+  wheelchairAccessible?: Boolean;
+  breakfast?: Boolean;
+  cableTv?: Boolean;
+  suitableForEvents?: Boolean;
+  dryer?: Boolean;
+  washer?: Boolean;
+  indoorFireplace?: Boolean;
+  tv?: Boolean;
+  heating?: Boolean;
+  hangers?: Boolean;
+  iron?: Boolean;
+  hairDryer?: Boolean;
+  doorman?: Boolean;
+  paidParkingOffPremises?: Boolean;
+  freeParkingOnStreet?: Boolean;
+  gym?: Boolean;
+  airConditioning?: Boolean;
+  shampoo?: Boolean;
+  essentials?: Boolean;
+  laptopFriendlyWorkspace?: Boolean;
+  privateEntrance?: Boolean;
+  buzzerWirelessIntercom?: Boolean;
+  babyBath?: Boolean;
+  babyMonitor?: Boolean;
+  babysitterRecommendations?: Boolean;
+  bathtub?: Boolean;
+  changingTable?: Boolean;
+  childrensBooksAndToys?: Boolean;
+  childrensDinnerware?: Boolean;
+  crib?: Boolean;
 }
 
 export type UserWhereUniqueInput = AtLeastOne<{
   id?: ID_Input;
   email?: String;
 }>;
+
+export interface UserUpdateWithoutLocationDataInput {
+  firstName?: String;
+  lastName?: String;
+  email?: String;
+  password?: String;
+  phone?: String;
+  responseRate?: Float;
+  responseTime?: Int;
+  isSuperHost?: Boolean;
+  ownedPlaces?: PlaceUpdateManyWithoutHostInput;
+  bookings?: BookingUpdateManyWithoutBookeeInput;
+  paymentAccount?: PaymentAccountUpdateManyWithoutUserInput;
+  sentMessages?: MessageUpdateManyWithoutFromInput;
+  receivedMessages?: MessageUpdateManyWithoutToInput;
+  notifications?: NotificationUpdateManyWithoutUserInput;
+  profilePicture?: PictureUpdateOneInput;
+  hostingExperiences?: ExperienceUpdateManyWithoutHostInput;
+}
+
+export interface ViewsWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  lastWeek?: Int;
+  lastWeek_not?: Int;
+  lastWeek_in?: Int[] | Int;
+  lastWeek_not_in?: Int[] | Int;
+  lastWeek_lt?: Int;
+  lastWeek_lte?: Int;
+  lastWeek_gt?: Int;
+  lastWeek_gte?: Int;
+  place?: PlaceWhereInput;
+  AND?: ViewsWhereInput[] | ViewsWhereInput;
+  OR?: ViewsWhereInput[] | ViewsWhereInput;
+  NOT?: ViewsWhereInput[] | ViewsWhereInput;
+}
 
 export interface PaymentAccountUpdateManyWithoutUserInput {
   create?:
@@ -1605,6 +1744,72 @@ export interface PaymentAccountUpdateManyWithoutUserInput {
   upsert?:
     | PaymentAccountUpsertWithWhereUniqueWithoutUserInput[]
     | PaymentAccountUpsertWithWhereUniqueWithoutUserInput;
+}
+
+export interface PoliciesWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  createdAt?: DateTimeInput;
+  createdAt_not?: DateTimeInput;
+  createdAt_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_lt?: DateTimeInput;
+  createdAt_lte?: DateTimeInput;
+  createdAt_gt?: DateTimeInput;
+  createdAt_gte?: DateTimeInput;
+  updatedAt?: DateTimeInput;
+  updatedAt_not?: DateTimeInput;
+  updatedAt_in?: DateTimeInput[] | DateTimeInput;
+  updatedAt_not_in?: DateTimeInput[] | DateTimeInput;
+  updatedAt_lt?: DateTimeInput;
+  updatedAt_lte?: DateTimeInput;
+  updatedAt_gt?: DateTimeInput;
+  updatedAt_gte?: DateTimeInput;
+  checkInStartTime?: Float;
+  checkInStartTime_not?: Float;
+  checkInStartTime_in?: Float[] | Float;
+  checkInStartTime_not_in?: Float[] | Float;
+  checkInStartTime_lt?: Float;
+  checkInStartTime_lte?: Float;
+  checkInStartTime_gt?: Float;
+  checkInStartTime_gte?: Float;
+  checkInEndTime?: Float;
+  checkInEndTime_not?: Float;
+  checkInEndTime_in?: Float[] | Float;
+  checkInEndTime_not_in?: Float[] | Float;
+  checkInEndTime_lt?: Float;
+  checkInEndTime_lte?: Float;
+  checkInEndTime_gt?: Float;
+  checkInEndTime_gte?: Float;
+  checkoutTime?: Float;
+  checkoutTime_not?: Float;
+  checkoutTime_in?: Float[] | Float;
+  checkoutTime_not_in?: Float[] | Float;
+  checkoutTime_lt?: Float;
+  checkoutTime_lte?: Float;
+  checkoutTime_gt?: Float;
+  checkoutTime_gte?: Float;
+  place?: PlaceWhereInput;
+  AND?: PoliciesWhereInput[] | PoliciesWhereInput;
+  OR?: PoliciesWhereInput[] | PoliciesWhereInput;
+  NOT?: PoliciesWhereInput[] | PoliciesWhereInput;
+}
+
+export interface PaymentAccountUpdateWithWhereUniqueWithoutUserInput {
+  where: PaymentAccountWhereUniqueInput;
+  data: PaymentAccountUpdateWithoutUserDataInput;
 }
 
 export interface PricingWhereInput {
@@ -1714,38 +1919,6 @@ export interface PricingWhereInput {
   NOT?: PricingWhereInput[] | PricingWhereInput;
 }
 
-export interface PaymentAccountUpdateWithWhereUniqueWithoutUserInput {
-  where: PaymentAccountWhereUniqueInput;
-  data: PaymentAccountUpdateWithoutUserDataInput;
-}
-
-export interface GuestRequirementsWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  govIssuedId?: Boolean;
-  govIssuedId_not?: Boolean;
-  recommendationsFromOtherHosts?: Boolean;
-  recommendationsFromOtherHosts_not?: Boolean;
-  guestTripInformation?: Boolean;
-  guestTripInformation_not?: Boolean;
-  place?: PlaceWhereInput;
-  AND?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
-  OR?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
-  NOT?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
-}
-
 export interface PaymentAccountUpdateWithoutUserDataInput {
   type?: PAYMENT_PROVIDER;
   payments?: PaymentUpdateManyWithoutPaymentMethodInput;
@@ -1753,7 +1926,7 @@ export interface PaymentAccountUpdateWithoutUserDataInput {
   creditcard?: CreditCardInformationUpdateOneWithoutPaymentAccountInput;
 }
 
-export interface HouseRulesWhereInput {
+export interface AmenitiesWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -1768,63 +1941,123 @@ export interface HouseRulesWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  createdAt?: DateTimeInput;
-  createdAt_not?: DateTimeInput;
-  createdAt_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_lt?: DateTimeInput;
-  createdAt_lte?: DateTimeInput;
-  createdAt_gt?: DateTimeInput;
-  createdAt_gte?: DateTimeInput;
-  updatedAt?: DateTimeInput;
-  updatedAt_not?: DateTimeInput;
-  updatedAt_in?: DateTimeInput[] | DateTimeInput;
-  updatedAt_not_in?: DateTimeInput[] | DateTimeInput;
-  updatedAt_lt?: DateTimeInput;
-  updatedAt_lte?: DateTimeInput;
-  updatedAt_gt?: DateTimeInput;
-  updatedAt_gte?: DateTimeInput;
-  suitableForChildren?: Boolean;
-  suitableForChildren_not?: Boolean;
-  suitableForInfants?: Boolean;
-  suitableForInfants_not?: Boolean;
+  place?: PlaceWhereInput;
+  elevator?: Boolean;
+  elevator_not?: Boolean;
   petsAllowed?: Boolean;
   petsAllowed_not?: Boolean;
+  internet?: Boolean;
+  internet_not?: Boolean;
+  kitchen?: Boolean;
+  kitchen_not?: Boolean;
+  wirelessInternet?: Boolean;
+  wirelessInternet_not?: Boolean;
+  familyKidFriendly?: Boolean;
+  familyKidFriendly_not?: Boolean;
+  freeParkingOnPremises?: Boolean;
+  freeParkingOnPremises_not?: Boolean;
+  hotTub?: Boolean;
+  hotTub_not?: Boolean;
+  pool?: Boolean;
+  pool_not?: Boolean;
   smokingAllowed?: Boolean;
   smokingAllowed_not?: Boolean;
-  partiesAndEventsAllowed?: Boolean;
-  partiesAndEventsAllowed_not?: Boolean;
-  additionalRules?: String;
-  additionalRules_not?: String;
-  additionalRules_in?: String[] | String;
-  additionalRules_not_in?: String[] | String;
-  additionalRules_lt?: String;
-  additionalRules_lte?: String;
-  additionalRules_gt?: String;
-  additionalRules_gte?: String;
-  additionalRules_contains?: String;
-  additionalRules_not_contains?: String;
-  additionalRules_starts_with?: String;
-  additionalRules_not_starts_with?: String;
-  additionalRules_ends_with?: String;
-  additionalRules_not_ends_with?: String;
-  AND?: HouseRulesWhereInput[] | HouseRulesWhereInput;
-  OR?: HouseRulesWhereInput[] | HouseRulesWhereInput;
-  NOT?: HouseRulesWhereInput[] | HouseRulesWhereInput;
+  wheelchairAccessible?: Boolean;
+  wheelchairAccessible_not?: Boolean;
+  breakfast?: Boolean;
+  breakfast_not?: Boolean;
+  cableTv?: Boolean;
+  cableTv_not?: Boolean;
+  suitableForEvents?: Boolean;
+  suitableForEvents_not?: Boolean;
+  dryer?: Boolean;
+  dryer_not?: Boolean;
+  washer?: Boolean;
+  washer_not?: Boolean;
+  indoorFireplace?: Boolean;
+  indoorFireplace_not?: Boolean;
+  tv?: Boolean;
+  tv_not?: Boolean;
+  heating?: Boolean;
+  heating_not?: Boolean;
+  hangers?: Boolean;
+  hangers_not?: Boolean;
+  iron?: Boolean;
+  iron_not?: Boolean;
+  hairDryer?: Boolean;
+  hairDryer_not?: Boolean;
+  doorman?: Boolean;
+  doorman_not?: Boolean;
+  paidParkingOffPremises?: Boolean;
+  paidParkingOffPremises_not?: Boolean;
+  freeParkingOnStreet?: Boolean;
+  freeParkingOnStreet_not?: Boolean;
+  gym?: Boolean;
+  gym_not?: Boolean;
+  airConditioning?: Boolean;
+  airConditioning_not?: Boolean;
+  shampoo?: Boolean;
+  shampoo_not?: Boolean;
+  essentials?: Boolean;
+  essentials_not?: Boolean;
+  laptopFriendlyWorkspace?: Boolean;
+  laptopFriendlyWorkspace_not?: Boolean;
+  privateEntrance?: Boolean;
+  privateEntrance_not?: Boolean;
+  buzzerWirelessIntercom?: Boolean;
+  buzzerWirelessIntercom_not?: Boolean;
+  babyBath?: Boolean;
+  babyBath_not?: Boolean;
+  babyMonitor?: Boolean;
+  babyMonitor_not?: Boolean;
+  babysitterRecommendations?: Boolean;
+  babysitterRecommendations_not?: Boolean;
+  bathtub?: Boolean;
+  bathtub_not?: Boolean;
+  changingTable?: Boolean;
+  changingTable_not?: Boolean;
+  childrensBooksAndToys?: Boolean;
+  childrensBooksAndToys_not?: Boolean;
+  childrensDinnerware?: Boolean;
+  childrensDinnerware_not?: Boolean;
+  crib?: Boolean;
+  crib_not?: Boolean;
+  AND?: AmenitiesWhereInput[] | AmenitiesWhereInput;
+  OR?: AmenitiesWhereInput[] | AmenitiesWhereInput;
+  NOT?: AmenitiesWhereInput[] | AmenitiesWhereInput;
 }
 
-export interface ViewsCreateOneWithoutPlaceInput {
-  create?: ViewsCreateWithoutPlaceInput;
-  connect?: ViewsWhereUniqueInput;
+export interface PlaceCreateOneWithoutReviewsInput {
+  create?: PlaceCreateWithoutReviewsInput;
+  connect?: PlaceWhereUniqueInput;
 }
 
-export interface ViewsUpdateInput {
-  lastWeek?: Int;
-  place?: PlaceUpdateOneWithoutViewsInput;
-}
-
-export interface ViewsCreateWithoutPlaceInput {
+export interface ViewsCreateInput {
   lastWeek: Int;
+  place: PlaceCreateOneWithoutViewsInput;
+}
+
+export interface PlaceCreateWithoutReviewsInput {
+  name: String;
+  size?: PLACE_SIZES;
+  shortDescription: String;
+  description: String;
+  slug: String;
+  maxGuests: Int;
+  numBedrooms: Int;
+  numBeds: Int;
+  numBaths: Int;
+  amenities: AmenitiesCreateOneWithoutPlaceInput;
+  host: UserCreateOneWithoutOwnedPlacesInput;
+  pricing: PricingCreateOneWithoutPlaceInput;
+  location: LocationCreateOneWithoutPlaceInput;
+  views: ViewsCreateOneWithoutPlaceInput;
+  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
+  policies?: PoliciesCreateOneWithoutPlaceInput;
+  houseRules?: HouseRulesCreateOneInput;
+  bookings?: BookingCreateManyWithoutPlaceInput;
+  pictures?: PictureCreateManyInput;
+  popularity: Int;
 }
 
 export interface PaymentUpdateManyWithoutPaymentMethodInput {
@@ -1842,9 +2075,9 @@ export interface PaymentUpdateManyWithoutPaymentMethodInput {
     | PaymentUpsertWithWhereUniqueWithoutPaymentMethodInput;
 }
 
-export interface GuestRequirementsCreateOneWithoutPlaceInput {
-  create?: GuestRequirementsCreateWithoutPlaceInput;
-  connect?: GuestRequirementsWhereUniqueInput;
+export interface ViewsCreateOneWithoutPlaceInput {
+  create?: ViewsCreateWithoutPlaceInput;
+  connect?: ViewsWhereUniqueInput;
 }
 
 export interface NotificationSubscriptionWhereInput {
@@ -1864,32 +2097,24 @@ export interface NotificationSubscriptionWhereInput {
     | NotificationSubscriptionWhereInput;
 }
 
-export interface GuestRequirementsCreateWithoutPlaceInput {
-  govIssuedId?: Boolean;
-  recommendationsFromOtherHosts?: Boolean;
-  guestTripInformation?: Boolean;
+export interface ViewsCreateWithoutPlaceInput {
+  lastWeek: Int;
 }
 
-export interface CreditCardInformationSubscriptionWhereInput {
+export interface MessageSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
   updatedFields_contains_every?: String[] | String;
   updatedFields_contains_some?: String[] | String;
-  node?: CreditCardInformationWhereInput;
-  AND?:
-    | CreditCardInformationSubscriptionWhereInput[]
-    | CreditCardInformationSubscriptionWhereInput;
-  OR?:
-    | CreditCardInformationSubscriptionWhereInput[]
-    | CreditCardInformationSubscriptionWhereInput;
-  NOT?:
-    | CreditCardInformationSubscriptionWhereInput[]
-    | CreditCardInformationSubscriptionWhereInput;
+  node?: MessageWhereInput;
+  AND?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
+  OR?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
+  NOT?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
 }
 
-export interface PoliciesCreateOneWithoutPlaceInput {
-  create?: PoliciesCreateWithoutPlaceInput;
-  connect?: PoliciesWhereUniqueInput;
+export interface GuestRequirementsCreateOneWithoutPlaceInput {
+  create?: GuestRequirementsCreateWithoutPlaceInput;
+  connect?: GuestRequirementsWhereUniqueInput;
 }
 
 export interface MessageWhereInput {
@@ -1938,105 +2163,13 @@ export interface MessageWhereInput {
   NOT?: MessageWhereInput[] | MessageWhereInput;
 }
 
-export interface PoliciesCreateWithoutPlaceInput {
-  checkInStartTime: Float;
-  checkInEndTime: Float;
-  checkoutTime: Float;
+export interface GuestRequirementsCreateWithoutPlaceInput {
+  govIssuedId?: Boolean;
+  recommendationsFromOtherHosts?: Boolean;
+  guestTripInformation?: Boolean;
 }
 
-export interface PaymentSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: PaymentWhereInput;
-  AND?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
-  OR?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
-  NOT?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
-}
-
-export interface HouseRulesCreateOneInput {
-  create?: HouseRulesCreateInput;
-  connect?: HouseRulesWhereUniqueInput;
-}
-
-export interface BookingSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: BookingWhereInput;
-  AND?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
-  OR?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
-  NOT?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
-}
-
-export interface HouseRulesCreateInput {
-  suitableForChildren?: Boolean;
-  suitableForInfants?: Boolean;
-  petsAllowed?: Boolean;
-  smokingAllowed?: Boolean;
-  partiesAndEventsAllowed?: Boolean;
-  additionalRules?: String;
-}
-
-export interface ReviewSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: ReviewWhereInput;
-  AND?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
-  OR?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
-  NOT?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
-}
-
-export interface BookingCreateManyWithoutPlaceInput {
-  create?: BookingCreateWithoutPlaceInput[] | BookingCreateWithoutPlaceInput;
-  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput;
-}
-
-export interface ExperienceCategorySubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: ExperienceCategoryWhereInput;
-  AND?:
-    | ExperienceCategorySubscriptionWhereInput[]
-    | ExperienceCategorySubscriptionWhereInput;
-  OR?:
-    | ExperienceCategorySubscriptionWhereInput[]
-    | ExperienceCategorySubscriptionWhereInput;
-  NOT?:
-    | ExperienceCategorySubscriptionWhereInput[]
-    | ExperienceCategorySubscriptionWhereInput;
-}
-
-export interface BookingCreateWithoutPlaceInput {
-  bookee: UserCreateOneWithoutBookingsInput;
-  startDate: DateTimeInput;
-  endDate: DateTimeInput;
-  payment?: PaymentCreateOneWithoutBookingInput;
-}
-
-export interface PictureSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: PictureWhereInput;
-  AND?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
-  OR?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
-  NOT?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
-}
-
-export interface PaymentCreateOneWithoutBookingInput {
-  create?: PaymentCreateWithoutBookingInput;
-  connect?: PaymentWhereUniqueInput;
-}
-
-export interface PaymentAccountWhereInput {
+export interface CreditCardInformationWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -2059,42 +2192,230 @@ export interface PaymentAccountWhereInput {
   createdAt_lte?: DateTimeInput;
   createdAt_gt?: DateTimeInput;
   createdAt_gte?: DateTimeInput;
-  type?: PAYMENT_PROVIDER;
-  type_not?: PAYMENT_PROVIDER;
-  type_in?: PAYMENT_PROVIDER[] | PAYMENT_PROVIDER;
-  type_not_in?: PAYMENT_PROVIDER[] | PAYMENT_PROVIDER;
-  user?: UserWhereInput;
-  payments_every?: PaymentWhereInput;
-  payments_some?: PaymentWhereInput;
-  payments_none?: PaymentWhereInput;
-  paypal?: PaypalInformationWhereInput;
-  creditcard?: CreditCardInformationWhereInput;
-  AND?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
-  OR?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
-  NOT?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
+  cardNumber?: String;
+  cardNumber_not?: String;
+  cardNumber_in?: String[] | String;
+  cardNumber_not_in?: String[] | String;
+  cardNumber_lt?: String;
+  cardNumber_lte?: String;
+  cardNumber_gt?: String;
+  cardNumber_gte?: String;
+  cardNumber_contains?: String;
+  cardNumber_not_contains?: String;
+  cardNumber_starts_with?: String;
+  cardNumber_not_starts_with?: String;
+  cardNumber_ends_with?: String;
+  cardNumber_not_ends_with?: String;
+  expiresOnMonth?: Int;
+  expiresOnMonth_not?: Int;
+  expiresOnMonth_in?: Int[] | Int;
+  expiresOnMonth_not_in?: Int[] | Int;
+  expiresOnMonth_lt?: Int;
+  expiresOnMonth_lte?: Int;
+  expiresOnMonth_gt?: Int;
+  expiresOnMonth_gte?: Int;
+  expiresOnYear?: Int;
+  expiresOnYear_not?: Int;
+  expiresOnYear_in?: Int[] | Int;
+  expiresOnYear_not_in?: Int[] | Int;
+  expiresOnYear_lt?: Int;
+  expiresOnYear_lte?: Int;
+  expiresOnYear_gt?: Int;
+  expiresOnYear_gte?: Int;
+  securityCode?: String;
+  securityCode_not?: String;
+  securityCode_in?: String[] | String;
+  securityCode_not_in?: String[] | String;
+  securityCode_lt?: String;
+  securityCode_lte?: String;
+  securityCode_gt?: String;
+  securityCode_gte?: String;
+  securityCode_contains?: String;
+  securityCode_not_contains?: String;
+  securityCode_starts_with?: String;
+  securityCode_not_starts_with?: String;
+  securityCode_ends_with?: String;
+  securityCode_not_ends_with?: String;
+  firstName?: String;
+  firstName_not?: String;
+  firstName_in?: String[] | String;
+  firstName_not_in?: String[] | String;
+  firstName_lt?: String;
+  firstName_lte?: String;
+  firstName_gt?: String;
+  firstName_gte?: String;
+  firstName_contains?: String;
+  firstName_not_contains?: String;
+  firstName_starts_with?: String;
+  firstName_not_starts_with?: String;
+  firstName_ends_with?: String;
+  firstName_not_ends_with?: String;
+  lastName?: String;
+  lastName_not?: String;
+  lastName_in?: String[] | String;
+  lastName_not_in?: String[] | String;
+  lastName_lt?: String;
+  lastName_lte?: String;
+  lastName_gt?: String;
+  lastName_gte?: String;
+  lastName_contains?: String;
+  lastName_not_contains?: String;
+  lastName_starts_with?: String;
+  lastName_not_starts_with?: String;
+  lastName_ends_with?: String;
+  lastName_not_ends_with?: String;
+  postalCode?: String;
+  postalCode_not?: String;
+  postalCode_in?: String[] | String;
+  postalCode_not_in?: String[] | String;
+  postalCode_lt?: String;
+  postalCode_lte?: String;
+  postalCode_gt?: String;
+  postalCode_gte?: String;
+  postalCode_contains?: String;
+  postalCode_not_contains?: String;
+  postalCode_starts_with?: String;
+  postalCode_not_starts_with?: String;
+  postalCode_ends_with?: String;
+  postalCode_not_ends_with?: String;
+  country?: String;
+  country_not?: String;
+  country_in?: String[] | String;
+  country_not_in?: String[] | String;
+  country_lt?: String;
+  country_lte?: String;
+  country_gt?: String;
+  country_gte?: String;
+  country_contains?: String;
+  country_not_contains?: String;
+  country_starts_with?: String;
+  country_not_starts_with?: String;
+  country_ends_with?: String;
+  country_not_ends_with?: String;
+  paymentAccount?: PaymentAccountWhereInput;
+  AND?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
+  OR?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
+  NOT?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
 }
 
-export interface PaymentCreateWithoutBookingInput {
-  serviceFee: Float;
-  placePrice: Float;
-  totalPrice: Float;
-  paymentMethod: PaymentAccountCreateOneWithoutPaymentsInput;
+export interface PoliciesCreateOneWithoutPlaceInput {
+  create?: PoliciesCreateWithoutPlaceInput;
+  connect?: PoliciesWhereUniqueInput;
 }
 
-export interface LocationSubscriptionWhereInput {
+export interface PaymentSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
   updatedFields_contains_every?: String[] | String;
   updatedFields_contains_some?: String[] | String;
-  node?: LocationWhereInput;
-  AND?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
-  OR?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
-  NOT?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
+  node?: PaymentWhereInput;
+  AND?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
+  OR?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
+  NOT?: PaymentSubscriptionWhereInput[] | PaymentSubscriptionWhereInput;
 }
 
-export interface PaymentAccountCreateOneWithoutPaymentsInput {
-  create?: PaymentAccountCreateWithoutPaymentsInput;
-  connect?: PaymentAccountWhereUniqueInput;
+export interface PoliciesCreateWithoutPlaceInput {
+  checkInStartTime: Float;
+  checkInEndTime: Float;
+  checkoutTime: Float;
+}
+
+export interface ReviewSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: ReviewWhereInput;
+  AND?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
+  OR?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
+  NOT?: ReviewSubscriptionWhereInput[] | ReviewSubscriptionWhereInput;
+}
+
+export interface HouseRulesCreateOneInput {
+  create?: HouseRulesCreateInput;
+  connect?: HouseRulesWhereUniqueInput;
+}
+
+export interface ExperienceCategorySubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: ExperienceCategoryWhereInput;
+  AND?:
+    | ExperienceCategorySubscriptionWhereInput[]
+    | ExperienceCategorySubscriptionWhereInput;
+  OR?:
+    | ExperienceCategorySubscriptionWhereInput[]
+    | ExperienceCategorySubscriptionWhereInput;
+  NOT?:
+    | ExperienceCategorySubscriptionWhereInput[]
+    | ExperienceCategorySubscriptionWhereInput;
+}
+
+export interface HouseRulesCreateInput {
+  suitableForChildren?: Boolean;
+  suitableForInfants?: Boolean;
+  petsAllowed?: Boolean;
+  smokingAllowed?: Boolean;
+  partiesAndEventsAllowed?: Boolean;
+  additionalRules?: String;
+}
+
+export interface ExperienceSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: ExperienceWhereInput;
+  AND?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
+  OR?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
+  NOT?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
+}
+
+export interface BookingCreateManyWithoutPlaceInput {
+  create?: BookingCreateWithoutPlaceInput[] | BookingCreateWithoutPlaceInput;
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput;
+}
+
+export interface CitySubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: CityWhereInput;
+  AND?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
+  OR?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
+  NOT?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
+}
+
+export interface BookingCreateWithoutPlaceInput {
+  bookee: UserCreateOneWithoutBookingsInput;
+  startDate: DateTimeInput;
+  endDate: DateTimeInput;
+  payment?: PaymentCreateOneWithoutBookingInput;
+}
+
+export interface NeighbourhoodSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: NeighbourhoodWhereInput;
+  AND?:
+    | NeighbourhoodSubscriptionWhereInput[]
+    | NeighbourhoodSubscriptionWhereInput;
+  OR?:
+    | NeighbourhoodSubscriptionWhereInput[]
+    | NeighbourhoodSubscriptionWhereInput;
+  NOT?:
+    | NeighbourhoodSubscriptionWhereInput[]
+    | NeighbourhoodSubscriptionWhereInput;
+}
+
+export interface PaymentCreateOneWithoutBookingInput {
+  create?: PaymentCreateWithoutBookingInput;
+  connect?: PaymentWhereUniqueInput;
 }
 
 export interface PaymentWhereInput {
@@ -2151,166 +2472,45 @@ export interface PaymentWhereInput {
   NOT?: PaymentWhereInput[] | PaymentWhereInput;
 }
 
+export interface PaymentCreateWithoutBookingInput {
+  serviceFee: Float;
+  placePrice: Float;
+  totalPrice: Float;
+  paymentMethod: PaymentAccountCreateOneWithoutPaymentsInput;
+}
+
+export interface ViewsSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: ViewsWhereInput;
+  AND?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
+  OR?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
+  NOT?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
+}
+
+export interface PaymentAccountCreateOneWithoutPaymentsInput {
+  create?: PaymentAccountCreateWithoutPaymentsInput;
+  connect?: PaymentAccountWhereUniqueInput;
+}
+
+export interface HouseRulesSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: HouseRulesWhereInput;
+  AND?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
+  OR?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
+  NOT?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
+}
+
 export interface PaymentAccountCreateWithoutPaymentsInput {
   type?: PAYMENT_PROVIDER;
   user: UserCreateOneWithoutPaymentAccountInput;
   paypal?: PaypalInformationCreateOneWithoutPaymentAccountInput;
   creditcard?: CreditCardInformationCreateOneWithoutPaymentAccountInput;
-}
-
-export interface PoliciesSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: PoliciesWhereInput;
-  AND?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
-  OR?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
-  NOT?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
-}
-
-export interface UserCreateOneWithoutPaymentAccountInput {
-  create?: UserCreateWithoutPaymentAccountInput;
-  connect?: UserWhereUniqueInput;
-}
-
-export interface RestaurantWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  createdAt?: DateTimeInput;
-  createdAt_not?: DateTimeInput;
-  createdAt_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_lt?: DateTimeInput;
-  createdAt_lte?: DateTimeInput;
-  createdAt_gt?: DateTimeInput;
-  createdAt_gte?: DateTimeInput;
-  title?: String;
-  title_not?: String;
-  title_in?: String[] | String;
-  title_not_in?: String[] | String;
-  title_lt?: String;
-  title_lte?: String;
-  title_gt?: String;
-  title_gte?: String;
-  title_contains?: String;
-  title_not_contains?: String;
-  title_starts_with?: String;
-  title_not_starts_with?: String;
-  title_ends_with?: String;
-  title_not_ends_with?: String;
-  avgPricePerPerson?: Int;
-  avgPricePerPerson_not?: Int;
-  avgPricePerPerson_in?: Int[] | Int;
-  avgPricePerPerson_not_in?: Int[] | Int;
-  avgPricePerPerson_lt?: Int;
-  avgPricePerPerson_lte?: Int;
-  avgPricePerPerson_gt?: Int;
-  avgPricePerPerson_gte?: Int;
-  pictures_every?: PictureWhereInput;
-  pictures_some?: PictureWhereInput;
-  pictures_none?: PictureWhereInput;
-  location?: LocationWhereInput;
-  isCurated?: Boolean;
-  isCurated_not?: Boolean;
-  slug?: String;
-  slug_not?: String;
-  slug_in?: String[] | String;
-  slug_not_in?: String[] | String;
-  slug_lt?: String;
-  slug_lte?: String;
-  slug_gt?: String;
-  slug_gte?: String;
-  slug_contains?: String;
-  slug_not_contains?: String;
-  slug_starts_with?: String;
-  slug_not_starts_with?: String;
-  slug_ends_with?: String;
-  slug_not_ends_with?: String;
-  popularity?: Int;
-  popularity_not?: Int;
-  popularity_in?: Int[] | Int;
-  popularity_not_in?: Int[] | Int;
-  popularity_lt?: Int;
-  popularity_lte?: Int;
-  popularity_gt?: Int;
-  popularity_gte?: Int;
-  AND?: RestaurantWhereInput[] | RestaurantWhereInput;
-  OR?: RestaurantWhereInput[] | RestaurantWhereInput;
-  NOT?: RestaurantWhereInput[] | RestaurantWhereInput;
-}
-
-export interface UserCreateWithoutPaymentAccountInput {
-  firstName: String;
-  lastName: String;
-  email: String;
-  password: String;
-  phone: String;
-  responseRate?: Float;
-  responseTime?: Int;
-  isSuperHost?: Boolean;
-  ownedPlaces?: PlaceCreateManyWithoutHostInput;
-  location?: LocationCreateOneWithoutUserInput;
-  bookings?: BookingCreateManyWithoutBookeeInput;
-  sentMessages?: MessageCreateManyWithoutFromInput;
-  receivedMessages?: MessageCreateManyWithoutToInput;
-  notifications?: NotificationCreateManyWithoutUserInput;
-  profilePicture?: PictureCreateOneInput;
-  hostingExperiences?: ExperienceCreateManyWithoutHostInput;
-}
-
-export interface CityWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  name?: String;
-  name_not?: String;
-  name_in?: String[] | String;
-  name_not_in?: String[] | String;
-  name_lt?: String;
-  name_lte?: String;
-  name_gt?: String;
-  name_gte?: String;
-  name_contains?: String;
-  name_not_contains?: String;
-  name_starts_with?: String;
-  name_not_starts_with?: String;
-  name_ends_with?: String;
-  name_not_ends_with?: String;
-  neighbourhoods_every?: NeighbourhoodWhereInput;
-  neighbourhoods_some?: NeighbourhoodWhereInput;
-  neighbourhoods_none?: NeighbourhoodWhereInput;
-  AND?: CityWhereInput[] | CityWhereInput;
-  OR?: CityWhereInput[] | CityWhereInput;
-  NOT?: CityWhereInput[] | CityWhereInput;
-}
-
-export interface MessageCreateManyWithoutToInput {
-  create?: MessageCreateWithoutToInput[] | MessageCreateWithoutToInput;
-  connect?: MessageWhereUniqueInput[] | MessageWhereUniqueInput;
 }
 
 export interface PictureWhereInput {
@@ -2347,10 +2547,55 @@ export interface PictureWhereInput {
   NOT?: PictureWhereInput[] | PictureWhereInput;
 }
 
-export interface MessageCreateWithoutToInput {
-  from: UserCreateOneWithoutSentMessagesInput;
-  deliveredAt: DateTimeInput;
-  readAt: DateTimeInput;
+export interface UserCreateOneWithoutPaymentAccountInput {
+  create?: UserCreateWithoutPaymentAccountInput;
+  connect?: UserWhereUniqueInput;
+}
+
+export interface BarSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: BarWhereInput;
+  AND?: BarSubscriptionWhereInput[] | BarSubscriptionWhereInput;
+  OR?: BarSubscriptionWhereInput[] | BarSubscriptionWhereInput;
+  NOT?: BarSubscriptionWhereInput[] | BarSubscriptionWhereInput;
+}
+
+export interface UserCreateWithoutPaymentAccountInput {
+  firstName: String;
+  lastName: String;
+  email: String;
+  password: String;
+  phone: String;
+  responseRate?: Float;
+  responseTime?: Int;
+  isSuperHost?: Boolean;
+  ownedPlaces?: PlaceCreateManyWithoutHostInput;
+  location?: LocationCreateOneWithoutUserInput;
+  bookings?: BookingCreateManyWithoutBookeeInput;
+  sentMessages?: MessageCreateManyWithoutFromInput;
+  receivedMessages?: MessageCreateManyWithoutToInput;
+  notifications?: NotificationCreateManyWithoutUserInput;
+  profilePicture?: PictureCreateOneInput;
+  hostingExperiences?: ExperienceCreateManyWithoutHostInput;
+}
+
+export interface PricingSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: PricingWhereInput;
+  AND?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
+  OR?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
+  NOT?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
+}
+
+export interface MessageCreateManyWithoutToInput {
+  create?: MessageCreateWithoutToInput[] | MessageCreateWithoutToInput;
+  connect?: MessageWhereUniqueInput[] | MessageWhereUniqueInput;
 }
 
 export interface PlaceSubscriptionWhereInput {
@@ -2364,14 +2609,83 @@ export interface PlaceSubscriptionWhereInput {
   NOT?: PlaceSubscriptionWhereInput[] | PlaceSubscriptionWhereInput;
 }
 
-export interface UserCreateOneWithoutSentMessagesInput {
-  create?: UserCreateWithoutSentMessagesInput;
-  connect?: UserWhereUniqueInput;
+export interface MessageCreateWithoutToInput {
+  from: UserCreateOneWithoutSentMessagesInput;
+  deliveredAt: DateTimeInput;
+  readAt: DateTimeInput;
 }
 
 export interface LocationUpsertWithoutRestaurantInput {
   update: LocationUpdateWithoutRestaurantDataInput;
   create: LocationCreateWithoutRestaurantInput;
+}
+
+export interface UserCreateOneWithoutSentMessagesInput {
+  create?: UserCreateWithoutSentMessagesInput;
+  connect?: UserWhereUniqueInput;
+}
+
+export interface NeighbourhoodWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  locations_every?: LocationWhereInput;
+  locations_some?: LocationWhereInput;
+  locations_none?: LocationWhereInput;
+  name?: String;
+  name_not?: String;
+  name_in?: String[] | String;
+  name_not_in?: String[] | String;
+  name_lt?: String;
+  name_lte?: String;
+  name_gt?: String;
+  name_gte?: String;
+  name_contains?: String;
+  name_not_contains?: String;
+  name_starts_with?: String;
+  name_not_starts_with?: String;
+  name_ends_with?: String;
+  name_not_ends_with?: String;
+  slug?: String;
+  slug_not?: String;
+  slug_in?: String[] | String;
+  slug_not_in?: String[] | String;
+  slug_lt?: String;
+  slug_lte?: String;
+  slug_gt?: String;
+  slug_gte?: String;
+  slug_contains?: String;
+  slug_not_contains?: String;
+  slug_starts_with?: String;
+  slug_not_starts_with?: String;
+  slug_ends_with?: String;
+  slug_not_ends_with?: String;
+  homePreview?: PictureWhereInput;
+  city?: CityWhereInput;
+  featured?: Boolean;
+  featured_not?: Boolean;
+  popularity?: Int;
+  popularity_not?: Int;
+  popularity_in?: Int[] | Int;
+  popularity_not_in?: Int[] | Int;
+  popularity_lt?: Int;
+  popularity_lte?: Int;
+  popularity_gt?: Int;
+  popularity_gte?: Int;
+  AND?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
+  OR?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
+  NOT?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
 }
 
 export interface UserCreateWithoutSentMessagesInput {
@@ -2393,41 +2707,51 @@ export interface UserCreateWithoutSentMessagesInput {
   hostingExperiences?: ExperienceCreateManyWithoutHostInput;
 }
 
-export type PlaceWhereUniqueInput = AtLeastOne<{
-  id?: ID_Input;
-}>;
+export interface LocationUpdateOneWithoutRestaurantInput {
+  create?: LocationCreateWithoutRestaurantInput;
+  update?: LocationUpdateWithoutRestaurantDataInput;
+  upsert?: LocationUpsertWithoutRestaurantInput;
+  delete?: Boolean;
+  connect?: LocationWhereUniqueInput;
+}
 
 export interface PaypalInformationCreateOneWithoutPaymentAccountInput {
   create?: PaypalInformationCreateWithoutPaymentAccountInput;
   connect?: PaypalInformationWhereUniqueInput;
 }
 
-export interface RestaurantUpdateInput {
-  title?: String;
-  avgPricePerPerson?: Int;
-  pictures?: PictureUpdateManyInput;
-  location?: LocationUpdateOneWithoutRestaurantInput;
-  isCurated?: Boolean;
-  slug?: String;
-  popularity?: Int;
-}
+export type GuestRequirementsWhereUniqueInput = AtLeastOne<{
+  id?: ID_Input;
+}>;
 
 export interface PaypalInformationCreateWithoutPaymentAccountInput {
   email: String;
 }
 
-export type PricingWhereUniqueInput = AtLeastOne<{
-  id?: ID_Input;
-}>;
+export interface LocationCreateWithoutRestaurantInput {
+  lat: Float;
+  lng: Float;
+  neighbourHood?: NeighbourhoodCreateOneWithoutLocationsInput;
+  user?: UserCreateOneWithoutLocationInput;
+  place?: PlaceCreateOneWithoutLocationInput;
+  address?: String;
+  directions?: String;
+  experience?: ExperienceCreateOneWithoutLocationInput;
+}
 
 export interface CreditCardInformationCreateOneWithoutPaymentAccountInput {
   create?: CreditCardInformationCreateWithoutPaymentAccountInput;
   connect?: CreditCardInformationWhereUniqueInput;
 }
 
-export interface LocationCreateOneWithoutRestaurantInput {
-  create?: LocationCreateWithoutRestaurantInput;
-  connect?: LocationWhereUniqueInput;
+export interface RestaurantCreateInput {
+  title: String;
+  avgPricePerPerson: Int;
+  pictures?: PictureCreateManyInput;
+  location: LocationCreateOneWithoutRestaurantInput;
+  isCurated?: Boolean;
+  slug: String;
+  popularity: Int;
 }
 
 export interface CreditCardInformationCreateWithoutPaymentAccountInput {
@@ -3361,47 +3685,9 @@ export type PaymentWhereUniqueInput = AtLeastOne<{
   id?: ID_Input;
 }>;
 
-export interface AmenitiesUpdateWithoutPlaceDataInput {
-  elevator?: Boolean;
-  petsAllowed?: Boolean;
-  internet?: Boolean;
-  kitchen?: Boolean;
-  wirelessInternet?: Boolean;
-  familyKidFriendly?: Boolean;
-  freeParkingOnPremises?: Boolean;
-  hotTub?: Boolean;
-  pool?: Boolean;
-  smokingAllowed?: Boolean;
-  wheelchairAccessible?: Boolean;
-  breakfast?: Boolean;
-  cableTv?: Boolean;
-  suitableForEvents?: Boolean;
-  dryer?: Boolean;
-  washer?: Boolean;
-  indoorFireplace?: Boolean;
-  tv?: Boolean;
-  heating?: Boolean;
-  hangers?: Boolean;
-  iron?: Boolean;
-  hairDryer?: Boolean;
-  doorman?: Boolean;
-  paidParkingOffPremises?: Boolean;
-  freeParkingOnStreet?: Boolean;
-  gym?: Boolean;
-  airConditioning?: Boolean;
-  shampoo?: Boolean;
-  essentials?: Boolean;
-  laptopFriendlyWorkspace?: Boolean;
-  privateEntrance?: Boolean;
-  buzzerWirelessIntercom?: Boolean;
-  babyBath?: Boolean;
-  babyMonitor?: Boolean;
-  babysitterRecommendations?: Boolean;
-  bathtub?: Boolean;
-  changingTable?: Boolean;
-  childrensBooksAndToys?: Boolean;
-  childrensDinnerware?: Boolean;
-  crib?: Boolean;
+export interface PlaceUpsertWithoutViewsInput {
+  update: PlaceUpdateWithoutViewsDataInput;
+  create: PlaceCreateWithoutViewsInput;
 }
 
 export interface ExperienceCreateOneWithoutCategoryInput {
@@ -3409,9 +3695,9 @@ export interface ExperienceCreateOneWithoutCategoryInput {
   connect?: ExperienceWhereUniqueInput;
 }
 
-export interface PlaceUpsertWithoutViewsInput {
-  update: PlaceUpdateWithoutViewsDataInput;
-  create: PlaceCreateWithoutViewsInput;
+export interface AmenitiesUpsertWithoutPlaceInput {
+  update: AmenitiesUpdateWithoutPlaceDataInput;
+  create: AmenitiesCreateWithoutPlaceInput;
 }
 
 export type PaymentAccountWhereUniqueInput = AtLeastOne<{
@@ -3663,23 +3949,31 @@ export interface LocationCreateInput {
   restaurant?: RestaurantCreateOneWithoutLocationInput;
 }
 
-export interface UserUpdateWithoutLocationDataInput {
-  firstName?: String;
-  lastName?: String;
-  email?: String;
-  password?: String;
-  phone?: String;
-  responseRate?: Float;
-  responseTime?: Int;
-  isSuperHost?: Boolean;
-  ownedPlaces?: PlaceUpdateManyWithoutHostInput;
-  bookings?: BookingUpdateManyWithoutBookeeInput;
-  paymentAccount?: PaymentAccountUpdateManyWithoutUserInput;
-  sentMessages?: MessageUpdateManyWithoutFromInput;
-  receivedMessages?: MessageUpdateManyWithoutToInput;
-  notifications?: NotificationUpdateManyWithoutUserInput;
-  profilePicture?: PictureUpdateOneInput;
-  hostingExperiences?: ExperienceUpdateManyWithoutHostInput;
+export interface GuestRequirementsWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  govIssuedId?: Boolean;
+  govIssuedId_not?: Boolean;
+  recommendationsFromOtherHosts?: Boolean;
+  recommendationsFromOtherHosts_not?: Boolean;
+  guestTripInformation?: Boolean;
+  guestTripInformation_not?: Boolean;
+  place?: PlaceWhereInput;
+  AND?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
+  OR?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
+  NOT?: GuestRequirementsWhereInput[] | GuestRequirementsWhereInput;
 }
 
 export interface UserCreateInput {
@@ -3702,59 +3996,7 @@ export interface UserCreateInput {
   hostingExperiences?: ExperienceCreateManyWithoutHostInput;
 }
 
-export interface ViewsWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  lastWeek?: Int;
-  lastWeek_not?: Int;
-  lastWeek_in?: Int[] | Int;
-  lastWeek_not_in?: Int[] | Int;
-  lastWeek_lt?: Int;
-  lastWeek_lte?: Int;
-  lastWeek_gt?: Int;
-  lastWeek_gte?: Int;
-  place?: PlaceWhereInput;
-  AND?: ViewsWhereInput[] | ViewsWhereInput;
-  OR?: ViewsWhereInput[] | ViewsWhereInput;
-  NOT?: ViewsWhereInput[] | ViewsWhereInput;
-}
-
-export interface PlaceCreateWithoutHostInput {
-  name: String;
-  size?: PLACE_SIZES;
-  shortDescription: String;
-  description: String;
-  slug: String;
-  maxGuests: Int;
-  numBedrooms: Int;
-  numBeds: Int;
-  numBaths: Int;
-  reviews?: ReviewCreateManyWithoutPlaceInput;
-  amenities: AmenitiesCreateOneWithoutPlaceInput;
-  pricing: PricingCreateOneWithoutPlaceInput;
-  location: LocationCreateOneWithoutPlaceInput;
-  views: ViewsCreateOneWithoutPlaceInput;
-  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
-  policies?: PoliciesCreateOneWithoutPlaceInput;
-  houseRules?: HouseRulesCreateOneInput;
-  bookings?: BookingCreateManyWithoutPlaceInput;
-  pictures?: PictureCreateManyInput;
-  popularity: Int;
-}
-
-export interface PoliciesWhereInput {
+export interface HouseRulesWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -3785,34 +4027,79 @@ export interface PoliciesWhereInput {
   updatedAt_lte?: DateTimeInput;
   updatedAt_gt?: DateTimeInput;
   updatedAt_gte?: DateTimeInput;
-  checkInStartTime?: Float;
-  checkInStartTime_not?: Float;
-  checkInStartTime_in?: Float[] | Float;
-  checkInStartTime_not_in?: Float[] | Float;
-  checkInStartTime_lt?: Float;
-  checkInStartTime_lte?: Float;
-  checkInStartTime_gt?: Float;
-  checkInStartTime_gte?: Float;
-  checkInEndTime?: Float;
-  checkInEndTime_not?: Float;
-  checkInEndTime_in?: Float[] | Float;
-  checkInEndTime_not_in?: Float[] | Float;
-  checkInEndTime_lt?: Float;
-  checkInEndTime_lte?: Float;
-  checkInEndTime_gt?: Float;
-  checkInEndTime_gte?: Float;
-  checkoutTime?: Float;
-  checkoutTime_not?: Float;
-  checkoutTime_in?: Float[] | Float;
-  checkoutTime_not_in?: Float[] | Float;
-  checkoutTime_lt?: Float;
-  checkoutTime_lte?: Float;
-  checkoutTime_gt?: Float;
-  checkoutTime_gte?: Float;
-  place?: PlaceWhereInput;
-  AND?: PoliciesWhereInput[] | PoliciesWhereInput;
-  OR?: PoliciesWhereInput[] | PoliciesWhereInput;
-  NOT?: PoliciesWhereInput[] | PoliciesWhereInput;
+  suitableForChildren?: Boolean;
+  suitableForChildren_not?: Boolean;
+  suitableForInfants?: Boolean;
+  suitableForInfants_not?: Boolean;
+  petsAllowed?: Boolean;
+  petsAllowed_not?: Boolean;
+  smokingAllowed?: Boolean;
+  smokingAllowed_not?: Boolean;
+  partiesAndEventsAllowed?: Boolean;
+  partiesAndEventsAllowed_not?: Boolean;
+  additionalRules?: String;
+  additionalRules_not?: String;
+  additionalRules_in?: String[] | String;
+  additionalRules_not_in?: String[] | String;
+  additionalRules_lt?: String;
+  additionalRules_lte?: String;
+  additionalRules_gt?: String;
+  additionalRules_gte?: String;
+  additionalRules_contains?: String;
+  additionalRules_not_contains?: String;
+  additionalRules_starts_with?: String;
+  additionalRules_not_starts_with?: String;
+  additionalRules_ends_with?: String;
+  additionalRules_not_ends_with?: String;
+  AND?: HouseRulesWhereInput[] | HouseRulesWhereInput;
+  OR?: HouseRulesWhereInput[] | HouseRulesWhereInput;
+  NOT?: HouseRulesWhereInput[] | HouseRulesWhereInput;
+}
+
+export interface PlaceCreateWithoutHostInput {
+  name: String;
+  size?: PLACE_SIZES;
+  shortDescription: String;
+  description: String;
+  slug: String;
+  maxGuests: Int;
+  numBedrooms: Int;
+  numBeds: Int;
+  numBaths: Int;
+  reviews?: ReviewCreateManyWithoutPlaceInput;
+  amenities: AmenitiesCreateOneWithoutPlaceInput;
+  pricing: PricingCreateOneWithoutPlaceInput;
+  location: LocationCreateOneWithoutPlaceInput;
+  views: ViewsCreateOneWithoutPlaceInput;
+  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
+  policies?: PoliciesCreateOneWithoutPlaceInput;
+  houseRules?: HouseRulesCreateOneInput;
+  bookings?: BookingCreateManyWithoutPlaceInput;
+  pictures?: PictureCreateManyInput;
+  popularity: Int;
+}
+
+export interface PlaceUpdateWithoutViewsDataInput {
+  name?: String;
+  size?: PLACE_SIZES;
+  shortDescription?: String;
+  description?: String;
+  slug?: String;
+  maxGuests?: Int;
+  numBedrooms?: Int;
+  numBeds?: Int;
+  numBaths?: Int;
+  reviews?: ReviewUpdateManyWithoutPlaceInput;
+  amenities?: AmenitiesUpdateOneWithoutPlaceInput;
+  host?: UserUpdateOneWithoutOwnedPlacesInput;
+  pricing?: PricingUpdateOneWithoutPlaceInput;
+  location?: LocationUpdateOneWithoutPlaceInput;
+  guestRequirements?: GuestRequirementsUpdateOneWithoutPlaceInput;
+  policies?: PoliciesUpdateOneWithoutPlaceInput;
+  houseRules?: HouseRulesUpdateOneInput;
+  bookings?: BookingUpdateManyWithoutPlaceInput;
+  pictures?: PictureUpdateManyInput;
+  popularity?: Int;
 }
 
 export interface ReviewCreateWithoutPlaceInput {
@@ -3827,105 +4114,12 @@ export interface ReviewCreateWithoutPlaceInput {
   experience?: ExperienceCreateOneWithoutReviewsInput;
 }
 
-export interface AmenitiesWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  place?: PlaceWhereInput;
-  elevator?: Boolean;
-  elevator_not?: Boolean;
-  petsAllowed?: Boolean;
-  petsAllowed_not?: Boolean;
-  internet?: Boolean;
-  internet_not?: Boolean;
-  kitchen?: Boolean;
-  kitchen_not?: Boolean;
-  wirelessInternet?: Boolean;
-  wirelessInternet_not?: Boolean;
-  familyKidFriendly?: Boolean;
-  familyKidFriendly_not?: Boolean;
-  freeParkingOnPremises?: Boolean;
-  freeParkingOnPremises_not?: Boolean;
-  hotTub?: Boolean;
-  hotTub_not?: Boolean;
-  pool?: Boolean;
-  pool_not?: Boolean;
-  smokingAllowed?: Boolean;
-  smokingAllowed_not?: Boolean;
-  wheelchairAccessible?: Boolean;
-  wheelchairAccessible_not?: Boolean;
-  breakfast?: Boolean;
-  breakfast_not?: Boolean;
-  cableTv?: Boolean;
-  cableTv_not?: Boolean;
-  suitableForEvents?: Boolean;
-  suitableForEvents_not?: Boolean;
-  dryer?: Boolean;
-  dryer_not?: Boolean;
-  washer?: Boolean;
-  washer_not?: Boolean;
-  indoorFireplace?: Boolean;
-  indoorFireplace_not?: Boolean;
-  tv?: Boolean;
-  tv_not?: Boolean;
-  heating?: Boolean;
-  heating_not?: Boolean;
-  hangers?: Boolean;
-  hangers_not?: Boolean;
-  iron?: Boolean;
-  iron_not?: Boolean;
-  hairDryer?: Boolean;
-  hairDryer_not?: Boolean;
-  doorman?: Boolean;
-  doorman_not?: Boolean;
-  paidParkingOffPremises?: Boolean;
-  paidParkingOffPremises_not?: Boolean;
-  freeParkingOnStreet?: Boolean;
-  freeParkingOnStreet_not?: Boolean;
-  gym?: Boolean;
-  gym_not?: Boolean;
-  airConditioning?: Boolean;
-  airConditioning_not?: Boolean;
-  shampoo?: Boolean;
-  shampoo_not?: Boolean;
-  essentials?: Boolean;
-  essentials_not?: Boolean;
-  laptopFriendlyWorkspace?: Boolean;
-  laptopFriendlyWorkspace_not?: Boolean;
-  privateEntrance?: Boolean;
-  privateEntrance_not?: Boolean;
-  buzzerWirelessIntercom?: Boolean;
-  buzzerWirelessIntercom_not?: Boolean;
-  babyBath?: Boolean;
-  babyBath_not?: Boolean;
-  babyMonitor?: Boolean;
-  babyMonitor_not?: Boolean;
-  babysitterRecommendations?: Boolean;
-  babysitterRecommendations_not?: Boolean;
-  bathtub?: Boolean;
-  bathtub_not?: Boolean;
-  changingTable?: Boolean;
-  changingTable_not?: Boolean;
-  childrensBooksAndToys?: Boolean;
-  childrensBooksAndToys_not?: Boolean;
-  childrensDinnerware?: Boolean;
-  childrensDinnerware_not?: Boolean;
-  crib?: Boolean;
-  crib_not?: Boolean;
-  AND?: AmenitiesWhereInput[] | AmenitiesWhereInput;
-  OR?: AmenitiesWhereInput[] | AmenitiesWhereInput;
-  NOT?: AmenitiesWhereInput[] | AmenitiesWhereInput;
+export interface PlaceUpdateOneWithoutViewsInput {
+  create?: PlaceCreateWithoutViewsInput;
+  update?: PlaceUpdateWithoutViewsDataInput;
+  upsert?: PlaceUpsertWithoutViewsInput;
+  delete?: Boolean;
+  connect?: PlaceWhereUniqueInput;
 }
 
 export interface ExperienceCreateWithoutReviewsInput {
@@ -3938,59 +4132,9 @@ export interface ExperienceCreateWithoutReviewsInput {
   popularity: Int;
 }
 
-export interface NotificationWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  createdAt?: DateTimeInput;
-  createdAt_not?: DateTimeInput;
-  createdAt_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_lt?: DateTimeInput;
-  createdAt_lte?: DateTimeInput;
-  createdAt_gt?: DateTimeInput;
-  createdAt_gte?: DateTimeInput;
-  type?: NOTIFICATION_TYPE;
-  type_not?: NOTIFICATION_TYPE;
-  type_in?: NOTIFICATION_TYPE[] | NOTIFICATION_TYPE;
-  type_not_in?: NOTIFICATION_TYPE[] | NOTIFICATION_TYPE;
-  user?: UserWhereInput;
-  link?: String;
-  link_not?: String;
-  link_in?: String[] | String;
-  link_not_in?: String[] | String;
-  link_lt?: String;
-  link_lte?: String;
-  link_gt?: String;
-  link_gte?: String;
-  link_contains?: String;
-  link_not_contains?: String;
-  link_starts_with?: String;
-  link_not_starts_with?: String;
-  link_ends_with?: String;
-  link_not_ends_with?: String;
-  readDate?: DateTimeInput;
-  readDate_not?: DateTimeInput;
-  readDate_in?: DateTimeInput[] | DateTimeInput;
-  readDate_not_in?: DateTimeInput[] | DateTimeInput;
-  readDate_lt?: DateTimeInput;
-  readDate_lte?: DateTimeInput;
-  readDate_gt?: DateTimeInput;
-  readDate_gte?: DateTimeInput;
-  AND?: NotificationWhereInput[] | NotificationWhereInput;
-  OR?: NotificationWhereInput[] | NotificationWhereInput;
-  NOT?: NotificationWhereInput[] | NotificationWhereInput;
+export interface ViewsUpdateInput {
+  lastWeek?: Int;
+  place?: PlaceUpdateOneWithoutViewsInput;
 }
 
 export interface ExperienceCategoryCreateWithoutExperienceInput {
@@ -4541,16 +4685,6 @@ export interface PictureUpsertWithWhereUniqueNestedInput {
   create: PictureCreateInput;
 }
 
-export interface PlaceCreateOneWithoutReviewsInput {
-  create?: PlaceCreateWithoutReviewsInput;
-  connect?: PlaceWhereUniqueInput;
-}
-
-export interface RestaurantUpsertWithoutLocationInput {
-  update: RestaurantUpdateWithoutLocationDataInput;
-  create: RestaurantCreateWithoutLocationInput;
-}
-
 export interface RestaurantSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
@@ -4562,26 +4696,48 @@ export interface RestaurantSubscriptionWhereInput {
   NOT?: RestaurantSubscriptionWhereInput[] | RestaurantSubscriptionWhereInput;
 }
 
+export interface RestaurantUpsertWithoutLocationInput {
+  update: RestaurantUpdateWithoutLocationDataInput;
+  create: RestaurantCreateWithoutLocationInput;
+}
+
+export interface CreditCardInformationSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: CreditCardInformationWhereInput;
+  AND?:
+    | CreditCardInformationSubscriptionWhereInput[]
+    | CreditCardInformationSubscriptionWhereInput;
+  OR?:
+    | CreditCardInformationSubscriptionWhereInput[]
+    | CreditCardInformationSubscriptionWhereInput;
+  NOT?:
+    | CreditCardInformationSubscriptionWhereInput[]
+    | CreditCardInformationSubscriptionWhereInput;
+}
+
 export interface LocationUpsertWithoutExperienceInput {
   update: LocationUpdateWithoutExperienceDataInput;
   create: LocationCreateWithoutExperienceInput;
 }
 
-export interface PaypalInformationSubscriptionWhereInput {
+export interface PaymentAccountSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
   updatedFields_contains_every?: String[] | String;
   updatedFields_contains_some?: String[] | String;
-  node?: PaypalInformationWhereInput;
+  node?: PaymentAccountWhereInput;
   AND?:
-    | PaypalInformationSubscriptionWhereInput[]
-    | PaypalInformationSubscriptionWhereInput;
+    | PaymentAccountSubscriptionWhereInput[]
+    | PaymentAccountSubscriptionWhereInput;
   OR?:
-    | PaypalInformationSubscriptionWhereInput[]
-    | PaypalInformationSubscriptionWhereInput;
+    | PaymentAccountSubscriptionWhereInput[]
+    | PaymentAccountSubscriptionWhereInput;
   NOT?:
-    | PaypalInformationSubscriptionWhereInput[]
-    | PaypalInformationSubscriptionWhereInput;
+    | PaymentAccountSubscriptionWhereInput[]
+    | PaymentAccountSubscriptionWhereInput;
 }
 
 export interface ReviewUpdateManyWithoutExperienceInput {
@@ -4599,7 +4755,65 @@ export interface ReviewUpdateManyWithoutExperienceInput {
     | ReviewUpsertWithWhereUniqueWithoutExperienceInput;
 }
 
-export interface CreditCardInformationWhereInput {
+export interface AmenitiesSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: AmenitiesWhereInput;
+  AND?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
+  OR?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
+  NOT?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
+}
+
+export interface ReviewUpdateWithWhereUniqueWithoutExperienceInput {
+  where: ReviewWhereUniqueInput;
+  data: ReviewUpdateWithoutExperienceDataInput;
+}
+
+export interface PictureSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: PictureWhereInput;
+  AND?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
+  OR?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
+  NOT?: PictureSubscriptionWhereInput[] | PictureSubscriptionWhereInput;
+}
+
+export interface ReviewUpdateWithoutExperienceDataInput {
+  text?: String;
+  stars?: Int;
+  accuracy?: Int;
+  location?: Int;
+  checkIn?: Int;
+  value?: Int;
+  cleanliness?: Int;
+  communication?: Int;
+  place?: PlaceUpdateOneWithoutReviewsInput;
+}
+
+export interface LocationSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: LocationWhereInput;
+  AND?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
+  OR?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
+  NOT?: LocationSubscriptionWhereInput[] | LocationSubscriptionWhereInput;
+}
+
+export interface PlaceUpdateOneWithoutReviewsInput {
+  create?: PlaceCreateWithoutReviewsInput;
+  update?: PlaceUpdateWithoutReviewsDataInput;
+  upsert?: PlaceUpsertWithoutReviewsInput;
+  delete?: Boolean;
+  connect?: PlaceWhereUniqueInput;
+}
+
+export interface RestaurantWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -4622,168 +4836,59 @@ export interface CreditCardInformationWhereInput {
   createdAt_lte?: DateTimeInput;
   createdAt_gt?: DateTimeInput;
   createdAt_gte?: DateTimeInput;
-  cardNumber?: String;
-  cardNumber_not?: String;
-  cardNumber_in?: String[] | String;
-  cardNumber_not_in?: String[] | String;
-  cardNumber_lt?: String;
-  cardNumber_lte?: String;
-  cardNumber_gt?: String;
-  cardNumber_gte?: String;
-  cardNumber_contains?: String;
-  cardNumber_not_contains?: String;
-  cardNumber_starts_with?: String;
-  cardNumber_not_starts_with?: String;
-  cardNumber_ends_with?: String;
-  cardNumber_not_ends_with?: String;
-  expiresOnMonth?: Int;
-  expiresOnMonth_not?: Int;
-  expiresOnMonth_in?: Int[] | Int;
-  expiresOnMonth_not_in?: Int[] | Int;
-  expiresOnMonth_lt?: Int;
-  expiresOnMonth_lte?: Int;
-  expiresOnMonth_gt?: Int;
-  expiresOnMonth_gte?: Int;
-  expiresOnYear?: Int;
-  expiresOnYear_not?: Int;
-  expiresOnYear_in?: Int[] | Int;
-  expiresOnYear_not_in?: Int[] | Int;
-  expiresOnYear_lt?: Int;
-  expiresOnYear_lte?: Int;
-  expiresOnYear_gt?: Int;
-  expiresOnYear_gte?: Int;
-  securityCode?: String;
-  securityCode_not?: String;
-  securityCode_in?: String[] | String;
-  securityCode_not_in?: String[] | String;
-  securityCode_lt?: String;
-  securityCode_lte?: String;
-  securityCode_gt?: String;
-  securityCode_gte?: String;
-  securityCode_contains?: String;
-  securityCode_not_contains?: String;
-  securityCode_starts_with?: String;
-  securityCode_not_starts_with?: String;
-  securityCode_ends_with?: String;
-  securityCode_not_ends_with?: String;
-  firstName?: String;
-  firstName_not?: String;
-  firstName_in?: String[] | String;
-  firstName_not_in?: String[] | String;
-  firstName_lt?: String;
-  firstName_lte?: String;
-  firstName_gt?: String;
-  firstName_gte?: String;
-  firstName_contains?: String;
-  firstName_not_contains?: String;
-  firstName_starts_with?: String;
-  firstName_not_starts_with?: String;
-  firstName_ends_with?: String;
-  firstName_not_ends_with?: String;
-  lastName?: String;
-  lastName_not?: String;
-  lastName_in?: String[] | String;
-  lastName_not_in?: String[] | String;
-  lastName_lt?: String;
-  lastName_lte?: String;
-  lastName_gt?: String;
-  lastName_gte?: String;
-  lastName_contains?: String;
-  lastName_not_contains?: String;
-  lastName_starts_with?: String;
-  lastName_not_starts_with?: String;
-  lastName_ends_with?: String;
-  lastName_not_ends_with?: String;
-  postalCode?: String;
-  postalCode_not?: String;
-  postalCode_in?: String[] | String;
-  postalCode_not_in?: String[] | String;
-  postalCode_lt?: String;
-  postalCode_lte?: String;
-  postalCode_gt?: String;
-  postalCode_gte?: String;
-  postalCode_contains?: String;
-  postalCode_not_contains?: String;
-  postalCode_starts_with?: String;
-  postalCode_not_starts_with?: String;
-  postalCode_ends_with?: String;
-  postalCode_not_ends_with?: String;
-  country?: String;
-  country_not?: String;
-  country_in?: String[] | String;
-  country_not_in?: String[] | String;
-  country_lt?: String;
-  country_lte?: String;
-  country_gt?: String;
-  country_gte?: String;
-  country_contains?: String;
-  country_not_contains?: String;
-  country_starts_with?: String;
-  country_not_starts_with?: String;
-  country_ends_with?: String;
-  country_not_ends_with?: String;
-  paymentAccount?: PaymentAccountWhereInput;
-  AND?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
-  OR?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
-  NOT?: CreditCardInformationWhereInput[] | CreditCardInformationWhereInput;
-}
-
-export interface ReviewUpdateWithWhereUniqueWithoutExperienceInput {
-  where: ReviewWhereUniqueInput;
-  data: ReviewUpdateWithoutExperienceDataInput;
-}
-
-export interface AmenitiesSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: AmenitiesWhereInput;
-  AND?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
-  OR?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
-  NOT?: AmenitiesSubscriptionWhereInput[] | AmenitiesSubscriptionWhereInput;
-}
-
-export interface ReviewUpdateWithoutExperienceDataInput {
-  text?: String;
-  stars?: Int;
-  accuracy?: Int;
-  location?: Int;
-  checkIn?: Int;
-  value?: Int;
-  cleanliness?: Int;
-  communication?: Int;
-  place?: PlaceUpdateOneWithoutReviewsInput;
-}
-
-export interface CitySubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: CityWhereInput;
-  AND?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
-  OR?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
-  NOT?: CitySubscriptionWhereInput[] | CitySubscriptionWhereInput;
-}
-
-export interface PlaceUpdateOneWithoutReviewsInput {
-  create?: PlaceCreateWithoutReviewsInput;
-  update?: PlaceUpdateWithoutReviewsDataInput;
-  upsert?: PlaceUpsertWithoutReviewsInput;
-  delete?: Boolean;
-  connect?: PlaceWhereUniqueInput;
-}
-
-export interface ViewsSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: ViewsWhereInput;
-  AND?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
-  OR?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
-  NOT?: ViewsSubscriptionWhereInput[] | ViewsSubscriptionWhereInput;
+  title?: String;
+  title_not?: String;
+  title_in?: String[] | String;
+  title_not_in?: String[] | String;
+  title_lt?: String;
+  title_lte?: String;
+  title_gt?: String;
+  title_gte?: String;
+  title_contains?: String;
+  title_not_contains?: String;
+  title_starts_with?: String;
+  title_not_starts_with?: String;
+  title_ends_with?: String;
+  title_not_ends_with?: String;
+  avgPricePerPerson?: Int;
+  avgPricePerPerson_not?: Int;
+  avgPricePerPerson_in?: Int[] | Int;
+  avgPricePerPerson_not_in?: Int[] | Int;
+  avgPricePerPerson_lt?: Int;
+  avgPricePerPerson_lte?: Int;
+  avgPricePerPerson_gt?: Int;
+  avgPricePerPerson_gte?: Int;
+  pictures_every?: PictureWhereInput;
+  pictures_some?: PictureWhereInput;
+  pictures_none?: PictureWhereInput;
+  location?: LocationWhereInput;
+  isCurated?: Boolean;
+  isCurated_not?: Boolean;
+  slug?: String;
+  slug_not?: String;
+  slug_in?: String[] | String;
+  slug_not_in?: String[] | String;
+  slug_lt?: String;
+  slug_lte?: String;
+  slug_gt?: String;
+  slug_gte?: String;
+  slug_contains?: String;
+  slug_not_contains?: String;
+  slug_starts_with?: String;
+  slug_not_starts_with?: String;
+  slug_ends_with?: String;
+  slug_not_ends_with?: String;
+  popularity?: Int;
+  popularity_not?: Int;
+  popularity_in?: Int[] | Int;
+  popularity_not_in?: Int[] | Int;
+  popularity_lt?: Int;
+  popularity_lte?: Int;
+  popularity_gt?: Int;
+  popularity_gte?: Int;
+  AND?: RestaurantWhereInput[] | RestaurantWhereInput;
+  OR?: RestaurantWhereInput[] | RestaurantWhereInput;
+  NOT?: RestaurantWhereInput[] | RestaurantWhereInput;
 }
 
 export interface PlaceUpdateWithoutReviewsDataInput {
@@ -4809,51 +4914,15 @@ export interface PlaceUpdateWithoutReviewsDataInput {
   popularity?: Int;
 }
 
-export interface BookingWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  createdAt?: DateTimeInput;
-  createdAt_not?: DateTimeInput;
-  createdAt_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
-  createdAt_lt?: DateTimeInput;
-  createdAt_lte?: DateTimeInput;
-  createdAt_gt?: DateTimeInput;
-  createdAt_gte?: DateTimeInput;
-  bookee?: UserWhereInput;
-  place?: PlaceWhereInput;
-  startDate?: DateTimeInput;
-  startDate_not?: DateTimeInput;
-  startDate_in?: DateTimeInput[] | DateTimeInput;
-  startDate_not_in?: DateTimeInput[] | DateTimeInput;
-  startDate_lt?: DateTimeInput;
-  startDate_lte?: DateTimeInput;
-  startDate_gt?: DateTimeInput;
-  startDate_gte?: DateTimeInput;
-  endDate?: DateTimeInput;
-  endDate_not?: DateTimeInput;
-  endDate_in?: DateTimeInput[] | DateTimeInput;
-  endDate_not_in?: DateTimeInput[] | DateTimeInput;
-  endDate_lt?: DateTimeInput;
-  endDate_lte?: DateTimeInput;
-  endDate_gt?: DateTimeInput;
-  endDate_gte?: DateTimeInput;
-  payment?: PaymentWhereInput;
-  AND?: BookingWhereInput[] | BookingWhereInput;
-  OR?: BookingWhereInput[] | BookingWhereInput;
-  NOT?: BookingWhereInput[] | BookingWhereInput;
+export interface PoliciesSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: PoliciesWhereInput;
+  AND?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
+  OR?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
+  NOT?: PoliciesSubscriptionWhereInput[] | PoliciesSubscriptionWhereInput;
 }
 
 export interface ViewsUpdateOneWithoutPlaceInput {
@@ -4864,43 +4933,31 @@ export interface ViewsUpdateOneWithoutPlaceInput {
   connect?: ViewsWhereUniqueInput;
 }
 
-export interface PricingSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: PricingWhereInput;
-  AND?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
-  OR?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
-  NOT?: PricingSubscriptionWhereInput[] | PricingSubscriptionWhereInput;
-}
+export type PlaceWhereUniqueInput = AtLeastOne<{
+  id?: ID_Input;
+}>;
 
 export interface ViewsUpdateWithoutPlaceDataInput {
   lastWeek?: Int;
 }
 
-export interface UserSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: UserWhereInput;
-  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
-  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
-  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
-}
+export type PricingWhereUniqueInput = AtLeastOne<{
+  id?: ID_Input;
+}>;
 
 export interface ViewsUpsertWithoutPlaceInput {
   update: ViewsUpdateWithoutPlaceDataInput;
   create: ViewsCreateWithoutPlaceInput;
 }
 
-export interface LocationUpdateOneWithoutRestaurantInput {
-  create?: LocationCreateWithoutRestaurantInput;
-  update?: LocationUpdateWithoutRestaurantDataInput;
-  upsert?: LocationUpsertWithoutRestaurantInput;
-  delete?: Boolean;
-  connect?: LocationWhereUniqueInput;
+export interface RestaurantUpdateInput {
+  title?: String;
+  avgPricePerPerson?: Int;
+  pictures?: PictureUpdateManyInput;
+  location?: LocationUpdateOneWithoutRestaurantInput;
+  isCurated?: Boolean;
+  slug?: String;
+  popularity?: Int;
 }
 
 export interface GuestRequirementsUpdateOneWithoutPlaceInput {
@@ -4912,7 +4969,18 @@ export interface GuestRequirementsUpdateOneWithoutPlaceInput {
   connect?: GuestRequirementsWhereUniqueInput;
 }
 
-export interface LocationWhereInput {
+export interface LocationCreateOneWithoutRestaurantInput {
+  create?: LocationCreateWithoutRestaurantInput;
+  connect?: LocationWhereUniqueInput;
+}
+
+export interface GuestRequirementsUpdateWithoutPlaceDataInput {
+  govIssuedId?: Boolean;
+  recommendationsFromOtherHosts?: Boolean;
+  guestTripInformation?: Boolean;
+}
+
+export interface BarWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -4927,69 +4995,24 @@ export interface LocationWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  lat?: Float;
-  lat_not?: Float;
-  lat_in?: Float[] | Float;
-  lat_not_in?: Float[] | Float;
-  lat_lt?: Float;
-  lat_lte?: Float;
-  lat_gt?: Float;
-  lat_gte?: Float;
-  lng?: Float;
-  lng_not?: Float;
-  lng_in?: Float[] | Float;
-  lng_not_in?: Float[] | Float;
-  lng_lt?: Float;
-  lng_lte?: Float;
-  lng_gt?: Float;
-  lng_gte?: Float;
-  neighbourHood?: NeighbourhoodWhereInput;
-  user?: UserWhereInput;
-  place?: PlaceWhereInput;
-  address?: String;
-  address_not?: String;
-  address_in?: String[] | String;
-  address_not_in?: String[] | String;
-  address_lt?: String;
-  address_lte?: String;
-  address_gt?: String;
-  address_gte?: String;
-  address_contains?: String;
-  address_not_contains?: String;
-  address_starts_with?: String;
-  address_not_starts_with?: String;
-  address_ends_with?: String;
-  address_not_ends_with?: String;
-  directions?: String;
-  directions_not?: String;
-  directions_in?: String[] | String;
-  directions_not_in?: String[] | String;
-  directions_lt?: String;
-  directions_lte?: String;
-  directions_gt?: String;
-  directions_gte?: String;
-  directions_contains?: String;
-  directions_not_contains?: String;
-  directions_starts_with?: String;
-  directions_not_starts_with?: String;
-  directions_ends_with?: String;
-  directions_not_ends_with?: String;
-  experience?: ExperienceWhereInput;
-  restaurant?: RestaurantWhereInput;
-  AND?: LocationWhereInput[] | LocationWhereInput;
-  OR?: LocationWhereInput[] | LocationWhereInput;
-  NOT?: LocationWhereInput[] | LocationWhereInput;
+  bar?: String;
+  bar_not?: String;
+  bar_in?: String[] | String;
+  bar_not_in?: String[] | String;
+  bar_lt?: String;
+  bar_lte?: String;
+  bar_gt?: String;
+  bar_gte?: String;
+  bar_contains?: String;
+  bar_not_contains?: String;
+  bar_starts_with?: String;
+  bar_not_starts_with?: String;
+  bar_ends_with?: String;
+  bar_not_ends_with?: String;
+  AND?: BarWhereInput[] | BarWhereInput;
+  OR?: BarWhereInput[] | BarWhereInput;
+  NOT?: BarWhereInput[] | BarWhereInput;
 }
-
-export interface GuestRequirementsUpdateWithoutPlaceDataInput {
-  govIssuedId?: Boolean;
-  recommendationsFromOtherHosts?: Boolean;
-  guestTripInformation?: Boolean;
-}
-
-export type GuestRequirementsWhereUniqueInput = AtLeastOne<{
-  id?: ID_Input;
-}>;
 
 export interface GuestRequirementsUpsertWithoutPlaceInput {
   update: GuestRequirementsUpdateWithoutPlaceDataInput;
@@ -5614,15 +5637,21 @@ export interface MessageUpsertWithWhereUniqueWithoutFromInput {
   create: MessageCreateWithoutFromInput;
 }
 
-export interface MessageSubscriptionWhereInput {
+export interface PaypalInformationSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
   updatedFields_contains_every?: String[] | String;
   updatedFields_contains_some?: String[] | String;
-  node?: MessageWhereInput;
-  AND?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
-  OR?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
-  NOT?: MessageSubscriptionWhereInput[] | MessageSubscriptionWhereInput;
+  node?: PaypalInformationWhereInput;
+  AND?:
+    | PaypalInformationSubscriptionWhereInput[]
+    | PaypalInformationSubscriptionWhereInput;
+  OR?:
+    | PaypalInformationSubscriptionWhereInput[]
+    | PaypalInformationSubscriptionWhereInput;
+  NOT?:
+    | PaypalInformationSubscriptionWhereInput[]
+    | PaypalInformationSubscriptionWhereInput;
 }
 
 export interface UserUpsertWithoutBookingsInput {
@@ -5678,21 +5707,51 @@ export interface BookingUpsertWithoutPaymentInput {
   create: BookingCreateWithoutPaymentInput;
 }
 
-export interface NeighbourhoodSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: NeighbourhoodWhereInput;
-  AND?:
-    | NeighbourhoodSubscriptionWhereInput[]
-    | NeighbourhoodSubscriptionWhereInput;
-  OR?:
-    | NeighbourhoodSubscriptionWhereInput[]
-    | NeighbourhoodSubscriptionWhereInput;
-  NOT?:
-    | NeighbourhoodSubscriptionWhereInput[]
-    | NeighbourhoodSubscriptionWhereInput;
+export interface BookingWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  createdAt?: DateTimeInput;
+  createdAt_not?: DateTimeInput;
+  createdAt_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_lt?: DateTimeInput;
+  createdAt_lte?: DateTimeInput;
+  createdAt_gt?: DateTimeInput;
+  createdAt_gte?: DateTimeInput;
+  bookee?: UserWhereInput;
+  place?: PlaceWhereInput;
+  startDate?: DateTimeInput;
+  startDate_not?: DateTimeInput;
+  startDate_in?: DateTimeInput[] | DateTimeInput;
+  startDate_not_in?: DateTimeInput[] | DateTimeInput;
+  startDate_lt?: DateTimeInput;
+  startDate_lte?: DateTimeInput;
+  startDate_gt?: DateTimeInput;
+  startDate_gte?: DateTimeInput;
+  endDate?: DateTimeInput;
+  endDate_not?: DateTimeInput;
+  endDate_in?: DateTimeInput[] | DateTimeInput;
+  endDate_not_in?: DateTimeInput[] | DateTimeInput;
+  endDate_lt?: DateTimeInput;
+  endDate_lte?: DateTimeInput;
+  endDate_gt?: DateTimeInput;
+  endDate_gte?: DateTimeInput;
+  payment?: PaymentWhereInput;
+  AND?: BookingWhereInput[] | BookingWhereInput;
+  OR?: BookingWhereInput[] | BookingWhereInput;
+  NOT?: BookingWhereInput[] | BookingWhereInput;
 }
 
 export interface PaymentUpsertWithWhereUniqueWithoutPaymentMethodInput {
@@ -5740,15 +5799,9 @@ export interface UserUpsertWithoutLocationInput {
   create: UserCreateWithoutLocationInput;
 }
 
-export interface RestaurantCreateInput {
-  title: String;
-  avgPricePerPerson: Int;
-  pictures?: PictureCreateManyInput;
-  location: LocationCreateOneWithoutRestaurantInput;
-  isCurated?: Boolean;
-  slug: String;
-  popularity: Int;
-}
+export type BarWhereUniqueInput = AtLeastOne<{
+  id?: ID_Input;
+}>;
 
 export interface ExperienceUpdateOneWithoutLocationInput {
   create?: ExperienceCreateWithoutLocationInput;
@@ -5942,27 +5995,27 @@ export interface LocationCreateOneWithoutUserInput {
   connect?: LocationWhereUniqueInput;
 }
 
-export interface PlaceUpdateWithoutViewsDataInput {
-  name?: String;
+export interface PlaceCreateWithoutViewsInput {
+  name: String;
   size?: PLACE_SIZES;
-  shortDescription?: String;
-  description?: String;
-  slug?: String;
-  maxGuests?: Int;
-  numBedrooms?: Int;
-  numBeds?: Int;
-  numBaths?: Int;
-  reviews?: ReviewUpdateManyWithoutPlaceInput;
-  amenities?: AmenitiesUpdateOneWithoutPlaceInput;
-  host?: UserUpdateOneWithoutOwnedPlacesInput;
-  pricing?: PricingUpdateOneWithoutPlaceInput;
-  location?: LocationUpdateOneWithoutPlaceInput;
-  guestRequirements?: GuestRequirementsUpdateOneWithoutPlaceInput;
-  policies?: PoliciesUpdateOneWithoutPlaceInput;
-  houseRules?: HouseRulesUpdateOneInput;
-  bookings?: BookingUpdateManyWithoutPlaceInput;
-  pictures?: PictureUpdateManyInput;
-  popularity?: Int;
+  shortDescription: String;
+  description: String;
+  slug: String;
+  maxGuests: Int;
+  numBedrooms: Int;
+  numBeds: Int;
+  numBaths: Int;
+  reviews?: ReviewCreateManyWithoutPlaceInput;
+  amenities: AmenitiesCreateOneWithoutPlaceInput;
+  host: UserCreateOneWithoutOwnedPlacesInput;
+  pricing: PricingCreateOneWithoutPlaceInput;
+  location: LocationCreateOneWithoutPlaceInput;
+  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
+  policies?: PoliciesCreateOneWithoutPlaceInput;
+  houseRules?: HouseRulesCreateOneInput;
+  bookings?: BookingCreateManyWithoutPlaceInput;
+  pictures?: PictureCreateManyInput;
+  popularity: Int;
 }
 
 export interface PlaceCreateOneWithoutLocationInput {
@@ -5970,11 +6023,8 @@ export interface PlaceCreateOneWithoutLocationInput {
   connect?: PlaceWhereUniqueInput;
 }
 
-export interface PlaceUpdateOneWithoutViewsInput {
+export interface PlaceCreateOneWithoutViewsInput {
   create?: PlaceCreateWithoutViewsInput;
-  update?: PlaceUpdateWithoutViewsDataInput;
-  upsert?: PlaceUpsertWithoutViewsInput;
-  delete?: Boolean;
   connect?: PlaceWhereUniqueInput;
 }
 
@@ -6069,27 +6119,59 @@ export interface PlaceCreateOneWithoutPricingInput {
   connect?: PlaceWhereUniqueInput;
 }
 
-export interface PlaceCreateWithoutReviewsInput {
-  name: String;
-  size?: PLACE_SIZES;
-  shortDescription: String;
-  description: String;
-  slug: String;
-  maxGuests: Int;
-  numBedrooms: Int;
-  numBeds: Int;
-  numBaths: Int;
-  amenities: AmenitiesCreateOneWithoutPlaceInput;
-  host: UserCreateOneWithoutOwnedPlacesInput;
-  pricing: PricingCreateOneWithoutPlaceInput;
-  location: LocationCreateOneWithoutPlaceInput;
-  views: ViewsCreateOneWithoutPlaceInput;
-  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
-  policies?: PoliciesCreateOneWithoutPlaceInput;
-  houseRules?: HouseRulesCreateOneInput;
-  bookings?: BookingCreateManyWithoutPlaceInput;
-  pictures?: PictureCreateManyInput;
-  popularity: Int;
+export interface NotificationWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  createdAt?: DateTimeInput;
+  createdAt_not?: DateTimeInput;
+  createdAt_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_lt?: DateTimeInput;
+  createdAt_lte?: DateTimeInput;
+  createdAt_gt?: DateTimeInput;
+  createdAt_gte?: DateTimeInput;
+  type?: NOTIFICATION_TYPE;
+  type_not?: NOTIFICATION_TYPE;
+  type_in?: NOTIFICATION_TYPE[] | NOTIFICATION_TYPE;
+  type_not_in?: NOTIFICATION_TYPE[] | NOTIFICATION_TYPE;
+  user?: UserWhereInput;
+  link?: String;
+  link_not?: String;
+  link_in?: String[] | String;
+  link_not_in?: String[] | String;
+  link_lt?: String;
+  link_lte?: String;
+  link_gt?: String;
+  link_gte?: String;
+  link_contains?: String;
+  link_not_contains?: String;
+  link_starts_with?: String;
+  link_not_starts_with?: String;
+  link_ends_with?: String;
+  link_not_ends_with?: String;
+  readDate?: DateTimeInput;
+  readDate_not?: DateTimeInput;
+  readDate_in?: DateTimeInput[] | DateTimeInput;
+  readDate_not_in?: DateTimeInput[] | DateTimeInput;
+  readDate_lt?: DateTimeInput;
+  readDate_lte?: DateTimeInput;
+  readDate_gt?: DateTimeInput;
+  readDate_gte?: DateTimeInput;
+  AND?: NotificationWhereInput[] | NotificationWhereInput;
+  OR?: NotificationWhereInput[] | NotificationWhereInput;
+  NOT?: NotificationWhereInput[] | NotificationWhereInput;
 }
 
 export interface PlaceCreateWithoutPricingInput {
@@ -6115,15 +6197,42 @@ export interface PlaceCreateWithoutPricingInput {
   popularity: Int;
 }
 
-export interface ExperienceSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: ExperienceWhereInput;
-  AND?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
-  OR?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
-  NOT?: ExperienceSubscriptionWhereInput[] | ExperienceSubscriptionWhereInput;
+export interface PaymentAccountWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  createdAt?: DateTimeInput;
+  createdAt_not?: DateTimeInput;
+  createdAt_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_not_in?: DateTimeInput[] | DateTimeInput;
+  createdAt_lt?: DateTimeInput;
+  createdAt_lte?: DateTimeInput;
+  createdAt_gt?: DateTimeInput;
+  createdAt_gte?: DateTimeInput;
+  type?: PAYMENT_PROVIDER;
+  type_not?: PAYMENT_PROVIDER;
+  type_in?: PAYMENT_PROVIDER[] | PAYMENT_PROVIDER;
+  type_not_in?: PAYMENT_PROVIDER[] | PAYMENT_PROVIDER;
+  user?: UserWhereInput;
+  payments_every?: PaymentWhereInput;
+  payments_some?: PaymentWhereInput;
+  payments_none?: PaymentWhereInput;
+  paypal?: PaypalInformationWhereInput;
+  creditcard?: CreditCardInformationWhereInput;
+  AND?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
+  OR?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
+  NOT?: PaymentAccountWhereInput[] | PaymentAccountWhereInput;
 }
 
 export interface PricingUpdateInput {
@@ -6142,67 +6251,15 @@ export interface PricingUpdateInput {
   currency?: CURRENCY;
 }
 
-export interface NeighbourhoodWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  locations_every?: LocationWhereInput;
-  locations_some?: LocationWhereInput;
-  locations_none?: LocationWhereInput;
-  name?: String;
-  name_not?: String;
-  name_in?: String[] | String;
-  name_not_in?: String[] | String;
-  name_lt?: String;
-  name_lte?: String;
-  name_gt?: String;
-  name_gte?: String;
-  name_contains?: String;
-  name_not_contains?: String;
-  name_starts_with?: String;
-  name_not_starts_with?: String;
-  name_ends_with?: String;
-  name_not_ends_with?: String;
-  slug?: String;
-  slug_not?: String;
-  slug_in?: String[] | String;
-  slug_not_in?: String[] | String;
-  slug_lt?: String;
-  slug_lte?: String;
-  slug_gt?: String;
-  slug_gte?: String;
-  slug_contains?: String;
-  slug_not_contains?: String;
-  slug_starts_with?: String;
-  slug_not_starts_with?: String;
-  slug_ends_with?: String;
-  slug_not_ends_with?: String;
-  homePreview?: PictureWhereInput;
-  city?: CityWhereInput;
-  featured?: Boolean;
-  featured_not?: Boolean;
-  popularity?: Int;
-  popularity_not?: Int;
-  popularity_in?: Int[] | Int;
-  popularity_not_in?: Int[] | Int;
-  popularity_lt?: Int;
-  popularity_lte?: Int;
-  popularity_gt?: Int;
-  popularity_gte?: Int;
-  AND?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
-  OR?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
-  NOT?: NeighbourhoodWhereInput[] | NeighbourhoodWhereInput;
+export interface UserSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: UserWhereInput;
+  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
+  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
+  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
 }
 
 export interface PlaceUpdateOneWithoutPricingInput {
@@ -6414,6 +6471,55 @@ export interface PictureCreateManyInput {
   connect?: PictureWhereUniqueInput[] | PictureWhereUniqueInput;
 }
 
+export interface BarCreateInput {
+  bar?: String;
+}
+
+export interface CityWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  name?: String;
+  name_not?: String;
+  name_in?: String[] | String;
+  name_not_in?: String[] | String;
+  name_lt?: String;
+  name_lte?: String;
+  name_gt?: String;
+  name_gte?: String;
+  name_contains?: String;
+  name_not_contains?: String;
+  name_starts_with?: String;
+  name_not_starts_with?: String;
+  name_ends_with?: String;
+  name_not_ends_with?: String;
+  neighbourhoods_every?: NeighbourhoodWhereInput;
+  neighbourhoods_some?: NeighbourhoodWhereInput;
+  neighbourhoods_none?: NeighbourhoodWhereInput;
+  AND?: CityWhereInput[] | CityWhereInput;
+  OR?: CityWhereInput[] | CityWhereInput;
+  NOT?: CityWhereInput[] | CityWhereInput;
+}
+
+export interface BarUpdateInput {
+  bar?: String;
+}
+
+export type HouseRulesWhereUniqueInput = AtLeastOne<{
+  id?: ID_Input;
+}>;
+
 export interface PoliciesCreateInput {
   checkInStartTime: Float;
   checkInEndTime: Float;
@@ -6421,15 +6527,12 @@ export interface PoliciesCreateInput {
   place: PlaceCreateOneWithoutPoliciesInput;
 }
 
-export interface HouseRulesSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: HouseRulesWhereInput;
-  AND?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
-  OR?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
-  NOT?: HouseRulesSubscriptionWhereInput[] | HouseRulesSubscriptionWhereInput;
+export interface BookingCreateInput {
+  bookee: UserCreateOneWithoutBookingsInput;
+  place: PlaceCreateOneWithoutBookingsInput;
+  startDate: DateTimeInput;
+  endDate: DateTimeInput;
+  payment?: PaymentCreateOneWithoutBookingInput;
 }
 
 export interface PlaceCreateOneWithoutPoliciesInput {
@@ -6437,9 +6540,14 @@ export interface PlaceCreateOneWithoutPoliciesInput {
   connect?: PlaceWhereUniqueInput;
 }
 
-export type HouseRulesWhereUniqueInput = AtLeastOne<{
-  id?: ID_Input;
-}>;
+export interface NeighbourhoodCreateWithoutCityInput {
+  locations?: LocationCreateManyWithoutNeighbourHoodInput;
+  name: String;
+  slug: String;
+  homePreview?: PictureCreateOneInput;
+  featured: Boolean;
+  popularity: Int;
+}
 
 export interface PlaceCreateWithoutPoliciesInput {
   name: String;
@@ -6464,12 +6572,9 @@ export interface PlaceCreateWithoutPoliciesInput {
   popularity: Int;
 }
 
-export interface BookingCreateInput {
-  bookee: UserCreateOneWithoutBookingsInput;
-  place: PlaceCreateOneWithoutBookingsInput;
-  startDate: DateTimeInput;
-  endDate: DateTimeInput;
-  payment?: PaymentCreateOneWithoutBookingInput;
+export interface PictureCreateOneInput {
+  create?: PictureCreateInput;
+  connect?: PictureWhereUniqueInput;
 }
 
 export interface PoliciesUpdateInput {
@@ -6479,26 +6584,94 @@ export interface PoliciesUpdateInput {
   place?: PlaceUpdateOneWithoutPoliciesInput;
 }
 
-export interface NeighbourhoodCreateWithoutCityInput {
-  locations?: LocationCreateManyWithoutNeighbourHoodInput;
-  name: String;
-  slug: String;
-  homePreview?: PictureCreateOneInput;
-  featured: Boolean;
-  popularity: Int;
+export interface NotificationCreateManyWithoutUserInput {
+  create?:
+    | NotificationCreateWithoutUserInput[]
+    | NotificationCreateWithoutUserInput;
+  connect?: NotificationWhereUniqueInput[] | NotificationWhereUniqueInput;
 }
 
-export interface PlaceUpdateOneWithoutPoliciesInput {
-  create?: PlaceCreateWithoutPoliciesInput;
-  update?: PlaceUpdateWithoutPoliciesDataInput;
-  upsert?: PlaceUpsertWithoutPoliciesInput;
-  delete?: Boolean;
-  connect?: PlaceWhereUniqueInput;
+export interface LocationWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
+  lat?: Float;
+  lat_not?: Float;
+  lat_in?: Float[] | Float;
+  lat_not_in?: Float[] | Float;
+  lat_lt?: Float;
+  lat_lte?: Float;
+  lat_gt?: Float;
+  lat_gte?: Float;
+  lng?: Float;
+  lng_not?: Float;
+  lng_in?: Float[] | Float;
+  lng_not_in?: Float[] | Float;
+  lng_lt?: Float;
+  lng_lte?: Float;
+  lng_gt?: Float;
+  lng_gte?: Float;
+  neighbourHood?: NeighbourhoodWhereInput;
+  user?: UserWhereInput;
+  place?: PlaceWhereInput;
+  address?: String;
+  address_not?: String;
+  address_in?: String[] | String;
+  address_not_in?: String[] | String;
+  address_lt?: String;
+  address_lte?: String;
+  address_gt?: String;
+  address_gte?: String;
+  address_contains?: String;
+  address_not_contains?: String;
+  address_starts_with?: String;
+  address_not_starts_with?: String;
+  address_ends_with?: String;
+  address_not_ends_with?: String;
+  directions?: String;
+  directions_not?: String;
+  directions_in?: String[] | String;
+  directions_not_in?: String[] | String;
+  directions_lt?: String;
+  directions_lte?: String;
+  directions_gt?: String;
+  directions_gte?: String;
+  directions_contains?: String;
+  directions_not_contains?: String;
+  directions_starts_with?: String;
+  directions_not_starts_with?: String;
+  directions_ends_with?: String;
+  directions_not_ends_with?: String;
+  experience?: ExperienceWhereInput;
+  restaurant?: RestaurantWhereInput;
+  AND?: LocationWhereInput[] | LocationWhereInput;
+  OR?: LocationWhereInput[] | LocationWhereInput;
+  NOT?: LocationWhereInput[] | LocationWhereInput;
 }
 
-export interface PictureCreateOneInput {
-  create?: PictureCreateInput;
-  connect?: PictureWhereUniqueInput;
+export interface HouseRulesUpdateInput {
+  suitableForChildren?: Boolean;
+  suitableForInfants?: Boolean;
+  petsAllowed?: Boolean;
+  smokingAllowed?: Boolean;
+  partiesAndEventsAllowed?: Boolean;
+  additionalRules?: String;
+}
+
+export interface PlaceUpsertWithoutPoliciesInput {
+  update: PlaceUpdateWithoutPoliciesDataInput;
+  create: PlaceCreateWithoutPoliciesInput;
 }
 
 export interface PlaceUpdateWithoutPoliciesDataInput {
@@ -6524,75 +6697,12 @@ export interface PlaceUpdateWithoutPoliciesDataInput {
   popularity?: Int;
 }
 
-export interface NotificationCreateManyWithoutUserInput {
-  create?:
-    | NotificationCreateWithoutUserInput[]
-    | NotificationCreateWithoutUserInput;
-  connect?: NotificationWhereUniqueInput[] | NotificationWhereUniqueInput;
-}
-
-export interface PlaceUpsertWithoutPoliciesInput {
-  update: PlaceUpdateWithoutPoliciesDataInput;
-  create: PlaceCreateWithoutPoliciesInput;
-}
-
-export interface LocationCreateWithoutRestaurantInput {
-  lat: Float;
-  lng: Float;
-  neighbourHood?: NeighbourhoodCreateOneWithoutLocationsInput;
-  user?: UserCreateOneWithoutLocationInput;
-  place?: PlaceCreateOneWithoutLocationInput;
-  address?: String;
-  directions?: String;
-  experience?: ExperienceCreateOneWithoutLocationInput;
-}
-
-export interface ExperienceCategoryUpdateInput {
-  mainColor?: String;
-  name?: String;
-  experience?: ExperienceUpdateOneWithoutCategoryInput;
-}
-
-export interface PlaceCreateWithoutViewsInput {
-  name: String;
-  size?: PLACE_SIZES;
-  shortDescription: String;
-  description: String;
-  slug: String;
-  maxGuests: Int;
-  numBedrooms: Int;
-  numBeds: Int;
-  numBaths: Int;
-  reviews?: ReviewCreateManyWithoutPlaceInput;
-  amenities: AmenitiesCreateOneWithoutPlaceInput;
-  host: UserCreateOneWithoutOwnedPlacesInput;
-  pricing: PricingCreateOneWithoutPlaceInput;
-  location: LocationCreateOneWithoutPlaceInput;
-  guestRequirements?: GuestRequirementsCreateOneWithoutPlaceInput;
-  policies?: PoliciesCreateOneWithoutPlaceInput;
-  houseRules?: HouseRulesCreateOneInput;
-  bookings?: BookingCreateManyWithoutPlaceInput;
-  pictures?: PictureCreateManyInput;
-  popularity: Int;
-}
-
-export interface PlaceCreateOneWithoutViewsInput {
-  create?: PlaceCreateWithoutViewsInput;
+export interface PlaceUpdateOneWithoutPoliciesInput {
+  create?: PlaceCreateWithoutPoliciesInput;
+  update?: PlaceUpdateWithoutPoliciesDataInput;
+  upsert?: PlaceUpsertWithoutPoliciesInput;
+  delete?: Boolean;
   connect?: PlaceWhereUniqueInput;
-}
-
-export interface ViewsCreateInput {
-  lastWeek: Int;
-  place: PlaceCreateOneWithoutViewsInput;
-}
-
-export interface HouseRulesUpdateInput {
-  suitableForChildren?: Boolean;
-  suitableForInfants?: Boolean;
-  petsAllowed?: Boolean;
-  smokingAllowed?: Boolean;
-  partiesAndEventsAllowed?: Boolean;
-  additionalRules?: String;
 }
 
 export interface PaymentAccountUpdateWithoutPaypalDataInput {
@@ -6602,26 +6712,26 @@ export interface PaymentAccountUpdateWithoutPaypalDataInput {
   creditcard?: CreditCardInformationUpdateOneWithoutPaymentAccountInput;
 }
 
-export interface PaymentAccountSubscriptionWhereInput {
+export interface BookingSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
   updatedFields_contains_every?: String[] | String;
   updatedFields_contains_some?: String[] | String;
-  node?: PaymentAccountWhereInput;
-  AND?:
-    | PaymentAccountSubscriptionWhereInput[]
-    | PaymentAccountSubscriptionWhereInput;
-  OR?:
-    | PaymentAccountSubscriptionWhereInput[]
-    | PaymentAccountSubscriptionWhereInput;
-  NOT?:
-    | PaymentAccountSubscriptionWhereInput[]
-    | PaymentAccountSubscriptionWhereInput;
+  node?: BookingWhereInput;
+  AND?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
+  OR?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
+  NOT?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput;
 }
 
 export interface LocationCreateOneWithoutPlaceInput {
   create?: LocationCreateWithoutPlaceInput;
   connect?: LocationWhereUniqueInput;
+}
+
+export interface ExperienceCategoryUpdateInput {
+  mainColor?: String;
+  name?: String;
+  experience?: ExperienceUpdateOneWithoutCategoryInput;
 }
 
 export interface NodeNode {
@@ -6662,22 +6772,131 @@ export interface RestaurantPreviousValuesSubscription
   popularity: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface PlaceConnectionNode {}
-
-export interface PlaceConnection
-  extends Promise<PlaceConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PlaceEdgeNode>>>() => T;
-  aggregate: <T = AggregatePlace>() => T;
+export interface PricingEdgeNode {
+  cursor: String;
 }
 
-export interface PlaceConnectionSubscription
-  extends Promise<AsyncIterator<PlaceConnectionNode>>,
+export interface PricingEdge extends Promise<PricingEdgeNode>, Fragmentable {
+  node: <T = Pricing>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PricingEdgeSubscription
+  extends Promise<AsyncIterator<PricingEdgeNode>>,
+    Fragmentable {
+  node: <T = PricingSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface ExperienceNode {
+  id: ID_Output;
+  title: String;
+  pricePerPerson: Int;
+  popularity: Int;
+}
+
+export interface Experience extends Promise<ExperienceNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  category: <T = ExperienceCategory>() => T;
+  title: () => Promise<String>;
+  host: <T = User>() => T;
+  location: <T = Location>() => T;
+  pricePerPerson: () => Promise<Int>;
+  reviews: <T = Promise<Array<ReviewNode>>>(
+    args?: {
+      where?: ReviewWhereInput;
+      orderBy?: ReviewOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  preview: <T = Picture>() => T;
+  popularity: () => Promise<Int>;
+}
+
+export interface ExperienceSubscription
+  extends Promise<AsyncIterator<ExperienceNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  category: <T = ExperienceCategorySubscription>() => T;
+  title: () => Promise<AsyncIterator<String>>;
+  host: <T = UserSubscription>() => T;
+  location: <T = LocationSubscription>() => T;
+  pricePerPerson: () => Promise<AsyncIterator<Int>>;
+  reviews: <T = Promise<AsyncIterator<Array<ReviewSubscription>>>>(
+    args?: {
+      where?: ReviewWhereInput;
+      orderBy?: ReviewOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  preview: <T = PictureSubscription>() => T;
+  popularity: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PricingConnectionNode {}
+
+export interface PricingConnection
+  extends Promise<PricingConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PricingEdgeNode>>>() => T;
+  aggregate: <T = AggregatePricing>() => T;
+}
+
+export interface PricingConnectionSubscription
+  extends Promise<AsyncIterator<PricingConnectionNode>>,
     Fragmentable {
   pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<PlaceEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregatePlaceSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<PricingEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregatePricingSubscription>() => T;
+}
+
+export interface ExperienceCategoryNode {
+  id: ID_Output;
+  mainColor: String;
+  name: String;
+}
+
+export interface ExperienceCategory
+  extends Promise<ExperienceCategoryNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  mainColor: () => Promise<String>;
+  name: () => Promise<String>;
+  experience: <T = Experience>() => T;
+}
+
+export interface ExperienceCategorySubscription
+  extends Promise<AsyncIterator<ExperienceCategoryNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  mainColor: () => Promise<AsyncIterator<String>>;
+  name: () => Promise<AsyncIterator<String>>;
+  experience: <T = ExperienceSubscription>() => T;
+}
+
+export interface AggregatePlaceNode {
+  count: Int;
+}
+
+export interface AggregatePlace
+  extends Promise<AggregatePlaceNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePlaceSubscription
+  extends Promise<AsyncIterator<AggregatePlaceNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface PlaceNode {
@@ -6806,47 +7025,6 @@ export interface PlaceSubscription
   popularity: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface AggregatePlaceNode {
-  count: Int;
-}
-
-export interface AggregatePlace
-  extends Promise<AggregatePlaceNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePlaceSubscription
-  extends Promise<AsyncIterator<AggregatePlaceNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface MessagePreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  deliveredAt: DateTimeOutput;
-  readAt: DateTimeOutput;
-}
-
-export interface MessagePreviousValues
-  extends Promise<MessagePreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  deliveredAt: () => Promise<DateTimeOutput>;
-  readAt: () => Promise<DateTimeOutput>;
-}
-
-export interface MessagePreviousValuesSubscription
-  extends Promise<AsyncIterator<MessagePreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  deliveredAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  readAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-}
-
 export interface PlaceEdgeNode {
   cursor: String;
 }
@@ -6863,54 +7041,6 @@ export interface PlaceEdgeSubscription
   cursor: () => Promise<AsyncIterator<String>>;
 }
 
-export interface AggregateUserNode {
-  count: Int;
-}
-
-export interface AggregateUser
-  extends Promise<AggregateUserNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateUserSubscription
-  extends Promise<AsyncIterator<AggregateUserNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface BatchPayloadNode {
-  count: Long;
-}
-
-export interface BatchPayload extends Promise<BatchPayloadNode>, Fragmentable {
-  count: () => Promise<Long>;
-}
-
-export interface BatchPayloadSubscription
-  extends Promise<AsyncIterator<BatchPayloadNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Long>>;
-}
-
-export interface RestaurantConnectionNode {}
-
-export interface RestaurantConnection
-  extends Promise<RestaurantConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<RestaurantEdgeNode>>>() => T;
-  aggregate: <T = AggregateRestaurant>() => T;
-}
-
-export interface RestaurantConnectionSubscription
-  extends Promise<AsyncIterator<RestaurantConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<RestaurantEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateRestaurantSubscription>() => T;
-}
-
 export interface AggregateRestaurantNode {
   count: Int;
 }
@@ -6925,1678 +7055,6 @@ export interface AggregateRestaurantSubscription
   extends Promise<AsyncIterator<AggregateRestaurantNode>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AggregateNotificationNode {
-  count: Int;
-}
-
-export interface AggregateNotification
-  extends Promise<AggregateNotificationNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateNotificationSubscription
-  extends Promise<AsyncIterator<AggregateNotificationNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserEdgeNode {
-  cursor: String;
-}
-
-export interface UserEdge extends Promise<UserEdgeNode>, Fragmentable {
-  node: <T = User>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface UserEdgeSubscription
-  extends Promise<AsyncIterator<UserEdgeNode>>,
-    Fragmentable {
-  node: <T = UserSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface NotificationConnectionNode {}
-
-export interface NotificationConnection
-  extends Promise<NotificationConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<NotificationEdgeNode>>>() => T;
-  aggregate: <T = AggregateNotification>() => T;
-}
-
-export interface NotificationConnectionSubscription
-  extends Promise<AsyncIterator<NotificationConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<NotificationEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregateNotificationSubscription>() => T;
-}
-
-export interface PageInfoNode {
-  hasNextPage: Boolean;
-  hasPreviousPage: Boolean;
-  startCursor?: String;
-  endCursor?: String;
-}
-
-export interface PageInfo extends Promise<PageInfoNode>, Fragmentable {
-  hasNextPage: () => Promise<Boolean>;
-  hasPreviousPage: () => Promise<Boolean>;
-  startCursor: () => Promise<String>;
-  endCursor: () => Promise<String>;
-}
-
-export interface PageInfoSubscription
-  extends Promise<AsyncIterator<PageInfoNode>>,
-    Fragmentable {
-  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
-  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
-  startCursor: () => Promise<AsyncIterator<String>>;
-  endCursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface MessageEdgeNode {
-  cursor: String;
-}
-
-export interface MessageEdge extends Promise<MessageEdgeNode>, Fragmentable {
-  node: <T = Message>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface MessageEdgeSubscription
-  extends Promise<AsyncIterator<MessageEdgeNode>>,
-    Fragmentable {
-  node: <T = MessageSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface ExperienceNode {
-  id: ID_Output;
-  title: String;
-  pricePerPerson: Int;
-  popularity: Int;
-}
-
-export interface Experience extends Promise<ExperienceNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  category: <T = ExperienceCategory>() => T;
-  title: () => Promise<String>;
-  host: <T = User>() => T;
-  location: <T = Location>() => T;
-  pricePerPerson: () => Promise<Int>;
-  reviews: <T = Promise<Array<ReviewNode>>>(
-    args?: {
-      where?: ReviewWhereInput;
-      orderBy?: ReviewOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  preview: <T = Picture>() => T;
-  popularity: () => Promise<Int>;
-}
-
-export interface ExperienceSubscription
-  extends Promise<AsyncIterator<ExperienceNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  category: <T = ExperienceCategorySubscription>() => T;
-  title: () => Promise<AsyncIterator<String>>;
-  host: <T = UserSubscription>() => T;
-  location: <T = LocationSubscription>() => T;
-  pricePerPerson: () => Promise<AsyncIterator<Int>>;
-  reviews: <T = Promise<AsyncIterator<Array<ReviewSubscription>>>>(
-    args?: {
-      where?: ReviewWhereInput;
-      orderBy?: ReviewOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  preview: <T = PictureSubscription>() => T;
-  popularity: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AggregateCreditCardInformationNode {
-  count: Int;
-}
-
-export interface AggregateCreditCardInformation
-  extends Promise<AggregateCreditCardInformationNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateCreditCardInformationSubscription
-  extends Promise<AsyncIterator<AggregateCreditCardInformationNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface UserSubscriptionPayload
-  extends Promise<UserSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = User>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = UserPreviousValues>() => T;
-}
-
-export interface UserSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<UserSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = UserSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = UserPreviousValuesSubscription>() => T;
-}
-
-export interface CreditCardInformationConnectionNode {}
-
-export interface CreditCardInformationConnection
-  extends Promise<CreditCardInformationConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<CreditCardInformationEdgeNode>>>() => T;
-  aggregate: <T = AggregateCreditCardInformation>() => T;
-}
-
-export interface CreditCardInformationConnectionSubscription
-  extends Promise<AsyncIterator<CreditCardInformationConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<CreditCardInformationEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregateCreditCardInformationSubscription>() => T;
-}
-
-export interface UserPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  updatedAt: DateTimeOutput;
-  firstName: String;
-  lastName: String;
-  email: String;
-  password: String;
-  phone: String;
-  responseRate?: Float;
-  responseTime?: Int;
-  isSuperHost: Boolean;
-}
-
-export interface UserPreviousValues
-  extends Promise<UserPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  updatedAt: () => Promise<DateTimeOutput>;
-  firstName: () => Promise<String>;
-  lastName: () => Promise<String>;
-  email: () => Promise<String>;
-  password: () => Promise<String>;
-  phone: () => Promise<String>;
-  responseRate: () => Promise<Float>;
-  responseTime: () => Promise<Int>;
-  isSuperHost: () => Promise<Boolean>;
-}
-
-export interface UserPreviousValuesSubscription
-  extends Promise<AsyncIterator<UserPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  firstName: () => Promise<AsyncIterator<String>>;
-  lastName: () => Promise<AsyncIterator<String>>;
-  email: () => Promise<AsyncIterator<String>>;
-  password: () => Promise<AsyncIterator<String>>;
-  phone: () => Promise<AsyncIterator<String>>;
-  responseRate: () => Promise<AsyncIterator<Float>>;
-  responseTime: () => Promise<AsyncIterator<Int>>;
-  isSuperHost: () => Promise<AsyncIterator<Boolean>>;
-}
-
-export interface AggregatePaypalInformationNode {
-  count: Int;
-}
-
-export interface AggregatePaypalInformation
-  extends Promise<AggregatePaypalInformationNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePaypalInformationSubscription
-  extends Promise<AsyncIterator<AggregatePaypalInformationNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserConnectionNode {}
-
-export interface UserConnection
-  extends Promise<UserConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<UserEdgeNode>>>() => T;
-  aggregate: <T = AggregateUser>() => T;
-}
-
-export interface UserConnectionSubscription
-  extends Promise<AsyncIterator<UserConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<UserEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateUserSubscription>() => T;
-}
-
-export interface PaypalInformationConnectionNode {}
-
-export interface PaypalInformationConnection
-  extends Promise<PaypalInformationConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PaypalInformationEdgeNode>>>() => T;
-  aggregate: <T = AggregatePaypalInformation>() => T;
-}
-
-export interface PaypalInformationConnectionSubscription
-  extends Promise<AsyncIterator<PaypalInformationConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<PaypalInformationEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregatePaypalInformationSubscription>() => T;
-}
-
-export interface PlaceSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PlaceSubscriptionPayload
-  extends Promise<PlaceSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Place>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PlacePreviousValues>() => T;
-}
-
-export interface PlaceSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PlaceSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PlaceSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PlacePreviousValuesSubscription>() => T;
-}
-
-export interface AggregatePaymentAccountNode {
-  count: Int;
-}
-
-export interface AggregatePaymentAccount
-  extends Promise<AggregatePaymentAccountNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePaymentAccountSubscription
-  extends Promise<AsyncIterator<AggregatePaymentAccountNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PlacePreviousValuesNode {
-  id: ID_Output;
-  name: String;
-  size?: PLACE_SIZES;
-  shortDescription: String;
-  description: String;
-  slug: String;
-  maxGuests: Int;
-  numBedrooms: Int;
-  numBeds: Int;
-  numBaths: Int;
-  popularity: Int;
-}
-
-export interface PlacePreviousValues
-  extends Promise<PlacePreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-  size: () => Promise<PLACE_SIZES>;
-  shortDescription: () => Promise<String>;
-  description: () => Promise<String>;
-  slug: () => Promise<String>;
-  maxGuests: () => Promise<Int>;
-  numBedrooms: () => Promise<Int>;
-  numBeds: () => Promise<Int>;
-  numBaths: () => Promise<Int>;
-  popularity: () => Promise<Int>;
-}
-
-export interface PlacePreviousValuesSubscription
-  extends Promise<AsyncIterator<PlacePreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
-  size: () => Promise<AsyncIterator<PLACE_SIZES>>;
-  shortDescription: () => Promise<AsyncIterator<String>>;
-  description: () => Promise<AsyncIterator<String>>;
-  slug: () => Promise<AsyncIterator<String>>;
-  maxGuests: () => Promise<AsyncIterator<Int>>;
-  numBedrooms: () => Promise<AsyncIterator<Int>>;
-  numBeds: () => Promise<AsyncIterator<Int>>;
-  numBaths: () => Promise<AsyncIterator<Int>>;
-  popularity: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PaymentAccountConnectionNode {}
-
-export interface PaymentAccountConnection
-  extends Promise<PaymentAccountConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PaymentAccountEdgeNode>>>() => T;
-  aggregate: <T = AggregatePaymentAccount>() => T;
-}
-
-export interface PaymentAccountConnectionSubscription
-  extends Promise<AsyncIterator<PaymentAccountConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<PaymentAccountEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregatePaymentAccountSubscription>() => T;
-}
-
-export interface NotificationNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  type?: NOTIFICATION_TYPE;
-  link: String;
-  readDate: DateTimeOutput;
-}
-
-export interface Notification extends Promise<NotificationNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  type: () => Promise<NOTIFICATION_TYPE>;
-  user: <T = User>() => T;
-  link: () => Promise<String>;
-  readDate: () => Promise<DateTimeOutput>;
-}
-
-export interface NotificationSubscription
-  extends Promise<AsyncIterator<NotificationNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  type: () => Promise<AsyncIterator<NOTIFICATION_TYPE>>;
-  user: <T = UserSubscription>() => T;
-  link: () => Promise<AsyncIterator<String>>;
-  readDate: () => Promise<AsyncIterator<DateTimeOutput>>;
-}
-
-export interface PaymentEdgeNode {
-  cursor: String;
-}
-
-export interface PaymentEdge extends Promise<PaymentEdgeNode>, Fragmentable {
-  node: <T = Payment>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PaymentEdgeSubscription
-  extends Promise<AsyncIterator<PaymentEdgeNode>>,
-    Fragmentable {
-  node: <T = PaymentSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PricingSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PricingSubscriptionPayload
-  extends Promise<PricingSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Pricing>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PricingPreviousValues>() => T;
-}
-
-export interface PricingSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PricingSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PricingSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PricingPreviousValuesSubscription>() => T;
-}
-
-export interface AggregateBookingNode {
-  count: Int;
-}
-
-export interface AggregateBooking
-  extends Promise<AggregateBookingNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateBookingSubscription
-  extends Promise<AsyncIterator<AggregateBookingNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PricingPreviousValuesNode {
-  id: ID_Output;
-  monthlyDiscount?: Int;
-  weeklyDiscount?: Int;
-  perNight: Int;
-  smartPricing: Boolean;
-  basePrice: Int;
-  averageWeekly: Int;
-  averageMonthly: Int;
-  cleaningFee?: Int;
-  securityDeposit?: Int;
-  extraGuests?: Int;
-  weekendPricing?: Int;
-  currency?: CURRENCY;
-}
-
-export interface PricingPreviousValues
-  extends Promise<PricingPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  monthlyDiscount: () => Promise<Int>;
-  weeklyDiscount: () => Promise<Int>;
-  perNight: () => Promise<Int>;
-  smartPricing: () => Promise<Boolean>;
-  basePrice: () => Promise<Int>;
-  averageWeekly: () => Promise<Int>;
-  averageMonthly: () => Promise<Int>;
-  cleaningFee: () => Promise<Int>;
-  securityDeposit: () => Promise<Int>;
-  extraGuests: () => Promise<Int>;
-  weekendPricing: () => Promise<Int>;
-  currency: () => Promise<CURRENCY>;
-}
-
-export interface PricingPreviousValuesSubscription
-  extends Promise<AsyncIterator<PricingPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  monthlyDiscount: () => Promise<AsyncIterator<Int>>;
-  weeklyDiscount: () => Promise<AsyncIterator<Int>>;
-  perNight: () => Promise<AsyncIterator<Int>>;
-  smartPricing: () => Promise<AsyncIterator<Boolean>>;
-  basePrice: () => Promise<AsyncIterator<Int>>;
-  averageWeekly: () => Promise<AsyncIterator<Int>>;
-  averageMonthly: () => Promise<AsyncIterator<Int>>;
-  cleaningFee: () => Promise<AsyncIterator<Int>>;
-  securityDeposit: () => Promise<AsyncIterator<Int>>;
-  extraGuests: () => Promise<AsyncIterator<Int>>;
-  weekendPricing: () => Promise<AsyncIterator<Int>>;
-  currency: () => Promise<AsyncIterator<CURRENCY>>;
-}
-
-export interface BookingConnectionNode {}
-
-export interface BookingConnection
-  extends Promise<BookingConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<BookingEdgeNode>>>() => T;
-  aggregate: <T = AggregateBooking>() => T;
-}
-
-export interface BookingConnectionSubscription
-  extends Promise<AsyncIterator<BookingConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<BookingEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateBookingSubscription>() => T;
-}
-
-export interface MessageNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  deliveredAt: DateTimeOutput;
-  readAt: DateTimeOutput;
-}
-
-export interface Message extends Promise<MessageNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  from: <T = User>() => T;
-  to: <T = User>() => T;
-  deliveredAt: () => Promise<DateTimeOutput>;
-  readAt: () => Promise<DateTimeOutput>;
-}
-
-export interface MessageSubscription
-  extends Promise<AsyncIterator<MessageNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  from: <T = UserSubscription>() => T;
-  to: <T = UserSubscription>() => T;
-  deliveredAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  readAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-}
-
-export interface ReviewEdgeNode {
-  cursor: String;
-}
-
-export interface ReviewEdge extends Promise<ReviewEdgeNode>, Fragmentable {
-  node: <T = Review>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface ReviewEdgeSubscription
-  extends Promise<AsyncIterator<ReviewEdgeNode>>,
-    Fragmentable {
-  node: <T = ReviewSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface GuestRequirementsSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface GuestRequirementsSubscriptionPayload
-  extends Promise<GuestRequirementsSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = GuestRequirements>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = GuestRequirementsPreviousValues>() => T;
-}
-
-export interface GuestRequirementsSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<GuestRequirementsSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = GuestRequirementsSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = GuestRequirementsPreviousValuesSubscription>() => T;
-}
-
-export interface AggregateAmenitiesNode {
-  count: Int;
-}
-
-export interface AggregateAmenities
-  extends Promise<AggregateAmenitiesNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateAmenitiesSubscription
-  extends Promise<AsyncIterator<AggregateAmenitiesNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface GuestRequirementsPreviousValuesNode {
-  id: ID_Output;
-  govIssuedId: Boolean;
-  recommendationsFromOtherHosts: Boolean;
-  guestTripInformation: Boolean;
-}
-
-export interface GuestRequirementsPreviousValues
-  extends Promise<GuestRequirementsPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  govIssuedId: () => Promise<Boolean>;
-  recommendationsFromOtherHosts: () => Promise<Boolean>;
-  guestTripInformation: () => Promise<Boolean>;
-}
-
-export interface GuestRequirementsPreviousValuesSubscription
-  extends Promise<AsyncIterator<GuestRequirementsPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  govIssuedId: () => Promise<AsyncIterator<Boolean>>;
-  recommendationsFromOtherHosts: () => Promise<AsyncIterator<Boolean>>;
-  guestTripInformation: () => Promise<AsyncIterator<Boolean>>;
-}
-
-export interface AmenitiesConnectionNode {}
-
-export interface AmenitiesConnection
-  extends Promise<AmenitiesConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<AmenitiesEdgeNode>>>() => T;
-  aggregate: <T = AggregateAmenities>() => T;
-}
-
-export interface AmenitiesConnectionSubscription
-  extends Promise<AsyncIterator<AmenitiesConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<AmenitiesEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateAmenitiesSubscription>() => T;
-}
-
-export interface CreditCardInformationNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  cardNumber: String;
-  expiresOnMonth: Int;
-  expiresOnYear: Int;
-  securityCode: String;
-  firstName: String;
-  lastName: String;
-  postalCode: String;
-  country: String;
-}
-
-export interface CreditCardInformation
-  extends Promise<CreditCardInformationNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  cardNumber: () => Promise<String>;
-  expiresOnMonth: () => Promise<Int>;
-  expiresOnYear: () => Promise<Int>;
-  securityCode: () => Promise<String>;
-  firstName: () => Promise<String>;
-  lastName: () => Promise<String>;
-  postalCode: () => Promise<String>;
-  country: () => Promise<String>;
-  paymentAccount: <T = PaymentAccount>() => T;
-}
-
-export interface CreditCardInformationSubscription
-  extends Promise<AsyncIterator<CreditCardInformationNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  cardNumber: () => Promise<AsyncIterator<String>>;
-  expiresOnMonth: () => Promise<AsyncIterator<Int>>;
-  expiresOnYear: () => Promise<AsyncIterator<Int>>;
-  securityCode: () => Promise<AsyncIterator<String>>;
-  firstName: () => Promise<AsyncIterator<String>>;
-  lastName: () => Promise<AsyncIterator<String>>;
-  postalCode: () => Promise<AsyncIterator<String>>;
-  country: () => Promise<AsyncIterator<String>>;
-  paymentAccount: <T = PaymentAccountSubscription>() => T;
-}
-
-export interface AggregateExperienceCategoryNode {
-  count: Int;
-}
-
-export interface AggregateExperienceCategory
-  extends Promise<AggregateExperienceCategoryNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateExperienceCategorySubscription
-  extends Promise<AsyncIterator<AggregateExperienceCategoryNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PoliciesSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PoliciesSubscriptionPayload
-  extends Promise<PoliciesSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Policies>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PoliciesPreviousValues>() => T;
-}
-
-export interface PoliciesSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PoliciesSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PoliciesSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PoliciesPreviousValuesSubscription>() => T;
-}
-
-export interface ExperienceCategoryConnectionNode {}
-
-export interface ExperienceCategoryConnection
-  extends Promise<ExperienceCategoryConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<ExperienceCategoryEdgeNode>>>() => T;
-  aggregate: <T = AggregateExperienceCategory>() => T;
-}
-
-export interface ExperienceCategoryConnectionSubscription
-  extends Promise<AsyncIterator<ExperienceCategoryConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<ExperienceCategoryEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregateExperienceCategorySubscription>() => T;
-}
-
-export interface PoliciesPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  updatedAt: DateTimeOutput;
-  checkInStartTime: Float;
-  checkInEndTime: Float;
-  checkoutTime: Float;
-}
-
-export interface PoliciesPreviousValues
-  extends Promise<PoliciesPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  updatedAt: () => Promise<DateTimeOutput>;
-  checkInStartTime: () => Promise<Float>;
-  checkInEndTime: () => Promise<Float>;
-  checkoutTime: () => Promise<Float>;
-}
-
-export interface PoliciesPreviousValuesSubscription
-  extends Promise<AsyncIterator<PoliciesPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  checkInStartTime: () => Promise<AsyncIterator<Float>>;
-  checkInEndTime: () => Promise<AsyncIterator<Float>>;
-  checkoutTime: () => Promise<AsyncIterator<Float>>;
-}
-
-export interface AggregateExperienceNode {
-  count: Int;
-}
-
-export interface AggregateExperience
-  extends Promise<AggregateExperienceNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateExperienceSubscription
-  extends Promise<AsyncIterator<AggregateExperienceNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PaypalInformationNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  email: String;
-}
-
-export interface PaypalInformation
-  extends Promise<PaypalInformationNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  email: () => Promise<String>;
-  paymentAccount: <T = PaymentAccount>() => T;
-}
-
-export interface PaypalInformationSubscription
-  extends Promise<AsyncIterator<PaypalInformationNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  email: () => Promise<AsyncIterator<String>>;
-  paymentAccount: <T = PaymentAccountSubscription>() => T;
-}
-
-export interface ExperienceConnectionNode {}
-
-export interface ExperienceConnection
-  extends Promise<ExperienceConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<ExperienceEdgeNode>>>() => T;
-  aggregate: <T = AggregateExperience>() => T;
-}
-
-export interface ExperienceConnectionSubscription
-  extends Promise<AsyncIterator<ExperienceConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<ExperienceEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateExperienceSubscription>() => T;
-}
-
-export interface HouseRulesSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface HouseRulesSubscriptionPayload
-  extends Promise<HouseRulesSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = HouseRules>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = HouseRulesPreviousValues>() => T;
-}
-
-export interface HouseRulesSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<HouseRulesSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = HouseRulesSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = HouseRulesPreviousValuesSubscription>() => T;
-}
-
-export interface PictureEdgeNode {
-  cursor: String;
-}
-
-export interface PictureEdge extends Promise<PictureEdgeNode>, Fragmentable {
-  node: <T = Picture>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PictureEdgeSubscription
-  extends Promise<AsyncIterator<PictureEdgeNode>>,
-    Fragmentable {
-  node: <T = PictureSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface HouseRulesPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  updatedAt: DateTimeOutput;
-  suitableForChildren?: Boolean;
-  suitableForInfants?: Boolean;
-  petsAllowed?: Boolean;
-  smokingAllowed?: Boolean;
-  partiesAndEventsAllowed?: Boolean;
-  additionalRules?: String;
-}
-
-export interface HouseRulesPreviousValues
-  extends Promise<HouseRulesPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  updatedAt: () => Promise<DateTimeOutput>;
-  suitableForChildren: () => Promise<Boolean>;
-  suitableForInfants: () => Promise<Boolean>;
-  petsAllowed: () => Promise<Boolean>;
-  smokingAllowed: () => Promise<Boolean>;
-  partiesAndEventsAllowed: () => Promise<Boolean>;
-  additionalRules: () => Promise<String>;
-}
-
-export interface HouseRulesPreviousValuesSubscription
-  extends Promise<AsyncIterator<HouseRulesPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  suitableForChildren: () => Promise<AsyncIterator<Boolean>>;
-  suitableForInfants: () => Promise<AsyncIterator<Boolean>>;
-  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
-  partiesAndEventsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  additionalRules: () => Promise<AsyncIterator<String>>;
-}
-
-export interface AggregateCityNode {
-  count: Int;
-}
-
-export interface AggregateCity
-  extends Promise<AggregateCityNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateCitySubscription
-  extends Promise<AsyncIterator<AggregateCityNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PaymentAccountNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  type?: PAYMENT_PROVIDER;
-}
-
-export interface PaymentAccount
-  extends Promise<PaymentAccountNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  type: () => Promise<PAYMENT_PROVIDER>;
-  user: <T = User>() => T;
-  payments: <T = Promise<Array<PaymentNode>>>(
-    args?: {
-      where?: PaymentWhereInput;
-      orderBy?: PaymentOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  paypal: <T = PaypalInformation>() => T;
-  creditcard: <T = CreditCardInformation>() => T;
-}
-
-export interface PaymentAccountSubscription
-  extends Promise<AsyncIterator<PaymentAccountNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  type: () => Promise<AsyncIterator<PAYMENT_PROVIDER>>;
-  user: <T = UserSubscription>() => T;
-  payments: <T = Promise<AsyncIterator<Array<PaymentSubscription>>>>(
-    args?: {
-      where?: PaymentWhereInput;
-      orderBy?: PaymentOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  paypal: <T = PaypalInformationSubscription>() => T;
-  creditcard: <T = CreditCardInformationSubscription>() => T;
-}
-
-export interface CityConnectionNode {}
-
-export interface CityConnection
-  extends Promise<CityConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<CityEdgeNode>>>() => T;
-  aggregate: <T = AggregateCity>() => T;
-}
-
-export interface CityConnectionSubscription
-  extends Promise<AsyncIterator<CityConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<CityEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateCitySubscription>() => T;
-}
-
-export interface ViewsSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface ViewsSubscriptionPayload
-  extends Promise<ViewsSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Views>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = ViewsPreviousValues>() => T;
-}
-
-export interface ViewsSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<ViewsSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = ViewsSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = ViewsPreviousValuesSubscription>() => T;
-}
-
-export interface NeighbourhoodEdgeNode {
-  cursor: String;
-}
-
-export interface NeighbourhoodEdge
-  extends Promise<NeighbourhoodEdgeNode>,
-    Fragmentable {
-  node: <T = Neighbourhood>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface NeighbourhoodEdgeSubscription
-  extends Promise<AsyncIterator<NeighbourhoodEdgeNode>>,
-    Fragmentable {
-  node: <T = NeighbourhoodSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface ViewsPreviousValuesNode {
-  id: ID_Output;
-  lastWeek: Int;
-}
-
-export interface ViewsPreviousValues
-  extends Promise<ViewsPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  lastWeek: () => Promise<Int>;
-}
-
-export interface ViewsPreviousValuesSubscription
-  extends Promise<AsyncIterator<ViewsPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  lastWeek: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AggregateLocationNode {
-  count: Int;
-}
-
-export interface AggregateLocation
-  extends Promise<AggregateLocationNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateLocationSubscription
-  extends Promise<AsyncIterator<AggregateLocationNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PaymentNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  serviceFee: Float;
-  placePrice: Float;
-  totalPrice: Float;
-}
-
-export interface Payment extends Promise<PaymentNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  serviceFee: () => Promise<Float>;
-  placePrice: () => Promise<Float>;
-  totalPrice: () => Promise<Float>;
-  booking: <T = Booking>() => T;
-  paymentMethod: <T = PaymentAccount>() => T;
-}
-
-export interface PaymentSubscription
-  extends Promise<AsyncIterator<PaymentNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  serviceFee: () => Promise<AsyncIterator<Float>>;
-  placePrice: () => Promise<AsyncIterator<Float>>;
-  totalPrice: () => Promise<AsyncIterator<Float>>;
-  booking: <T = BookingSubscription>() => T;
-  paymentMethod: <T = PaymentAccountSubscription>() => T;
-}
-
-export interface LocationConnectionNode {}
-
-export interface LocationConnection
-  extends Promise<LocationConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<LocationEdgeNode>>>() => T;
-  aggregate: <T = AggregateLocation>() => T;
-}
-
-export interface LocationConnectionSubscription
-  extends Promise<AsyncIterator<LocationConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<LocationEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateLocationSubscription>() => T;
-}
-
-export interface LocationSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface LocationSubscriptionPayload
-  extends Promise<LocationSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Location>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = LocationPreviousValues>() => T;
-}
-
-export interface LocationSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<LocationSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = LocationSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = LocationPreviousValuesSubscription>() => T;
-}
-
-export interface ViewsEdgeNode {
-  cursor: String;
-}
-
-export interface ViewsEdge extends Promise<ViewsEdgeNode>, Fragmentable {
-  node: <T = Views>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface ViewsEdgeSubscription
-  extends Promise<AsyncIterator<ViewsEdgeNode>>,
-    Fragmentable {
-  node: <T = ViewsSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface LocationPreviousValuesNode {
-  id: ID_Output;
-  lat: Float;
-  lng: Float;
-  address?: String;
-  directions?: String;
-}
-
-export interface LocationPreviousValues
-  extends Promise<LocationPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  lat: () => Promise<Float>;
-  lng: () => Promise<Float>;
-  address: () => Promise<String>;
-  directions: () => Promise<String>;
-}
-
-export interface LocationPreviousValuesSubscription
-  extends Promise<AsyncIterator<LocationPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  lat: () => Promise<AsyncIterator<Float>>;
-  lng: () => Promise<AsyncIterator<Float>>;
-  address: () => Promise<AsyncIterator<String>>;
-  directions: () => Promise<AsyncIterator<String>>;
-}
-
-export interface AggregateHouseRulesNode {
-  count: Int;
-}
-
-export interface AggregateHouseRules
-  extends Promise<AggregateHouseRulesNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateHouseRulesSubscription
-  extends Promise<AsyncIterator<AggregateHouseRulesNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface BookingNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  startDate: DateTimeOutput;
-  endDate: DateTimeOutput;
-}
-
-export interface Booking extends Promise<BookingNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  bookee: <T = User>() => T;
-  place: <T = Place>() => T;
-  startDate: () => Promise<DateTimeOutput>;
-  endDate: () => Promise<DateTimeOutput>;
-  payment: <T = Payment>() => T;
-}
-
-export interface BookingSubscription
-  extends Promise<AsyncIterator<BookingNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  bookee: <T = UserSubscription>() => T;
-  place: <T = PlaceSubscription>() => T;
-  startDate: () => Promise<AsyncIterator<DateTimeOutput>>;
-  endDate: () => Promise<AsyncIterator<DateTimeOutput>>;
-  payment: <T = PaymentSubscription>() => T;
-}
-
-export interface HouseRulesConnectionNode {}
-
-export interface HouseRulesConnection
-  extends Promise<HouseRulesConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<HouseRulesEdgeNode>>>() => T;
-  aggregate: <T = AggregateHouseRules>() => T;
-}
-
-export interface HouseRulesConnectionSubscription
-  extends Promise<AsyncIterator<HouseRulesConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<HouseRulesEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateHouseRulesSubscription>() => T;
-}
-
-export interface NeighbourhoodSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface NeighbourhoodSubscriptionPayload
-  extends Promise<NeighbourhoodSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Neighbourhood>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = NeighbourhoodPreviousValues>() => T;
-}
-
-export interface NeighbourhoodSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<NeighbourhoodSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = NeighbourhoodSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = NeighbourhoodPreviousValuesSubscription>() => T;
-}
-
-export interface PoliciesEdgeNode {
-  cursor: String;
-}
-
-export interface PoliciesEdge extends Promise<PoliciesEdgeNode>, Fragmentable {
-  node: <T = Policies>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PoliciesEdgeSubscription
-  extends Promise<AsyncIterator<PoliciesEdgeNode>>,
-    Fragmentable {
-  node: <T = PoliciesSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface NeighbourhoodPreviousValuesNode {
-  id: ID_Output;
-  name: String;
-  slug: String;
-  featured: Boolean;
-  popularity: Int;
-}
-
-export interface NeighbourhoodPreviousValues
-  extends Promise<NeighbourhoodPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-  slug: () => Promise<String>;
-  featured: () => Promise<Boolean>;
-  popularity: () => Promise<Int>;
-}
-
-export interface NeighbourhoodPreviousValuesSubscription
-  extends Promise<AsyncIterator<NeighbourhoodPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
-  slug: () => Promise<AsyncIterator<String>>;
-  featured: () => Promise<AsyncIterator<Boolean>>;
-  popularity: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AggregateGuestRequirementsNode {
-  count: Int;
-}
-
-export interface AggregateGuestRequirements
-  extends Promise<AggregateGuestRequirementsNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateGuestRequirementsSubscription
-  extends Promise<AsyncIterator<AggregateGuestRequirementsNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface HouseRulesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  updatedAt: DateTimeOutput;
-  suitableForChildren?: Boolean;
-  suitableForInfants?: Boolean;
-  petsAllowed?: Boolean;
-  smokingAllowed?: Boolean;
-  partiesAndEventsAllowed?: Boolean;
-  additionalRules?: String;
-}
-
-export interface HouseRules extends Promise<HouseRulesNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  updatedAt: () => Promise<DateTimeOutput>;
-  suitableForChildren: () => Promise<Boolean>;
-  suitableForInfants: () => Promise<Boolean>;
-  petsAllowed: () => Promise<Boolean>;
-  smokingAllowed: () => Promise<Boolean>;
-  partiesAndEventsAllowed: () => Promise<Boolean>;
-  additionalRules: () => Promise<String>;
-}
-
-export interface HouseRulesSubscription
-  extends Promise<AsyncIterator<HouseRulesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  suitableForChildren: () => Promise<AsyncIterator<Boolean>>;
-  suitableForInfants: () => Promise<AsyncIterator<Boolean>>;
-  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
-  partiesAndEventsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  additionalRules: () => Promise<AsyncIterator<String>>;
-}
-
-export interface GuestRequirementsConnectionNode {}
-
-export interface GuestRequirementsConnection
-  extends Promise<GuestRequirementsConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<GuestRequirementsEdgeNode>>>() => T;
-  aggregate: <T = AggregateGuestRequirements>() => T;
-}
-
-export interface GuestRequirementsConnectionSubscription
-  extends Promise<AsyncIterator<GuestRequirementsConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<GuestRequirementsEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregateGuestRequirementsSubscription>() => T;
-}
-
-export interface CitySubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface CitySubscriptionPayload
-  extends Promise<CitySubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = City>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = CityPreviousValues>() => T;
-}
-
-export interface CitySubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<CitySubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = CitySubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = CityPreviousValuesSubscription>() => T;
-}
-
-export interface PricingEdgeNode {
-  cursor: String;
-}
-
-export interface PricingEdge extends Promise<PricingEdgeNode>, Fragmentable {
-  node: <T = Pricing>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PricingEdgeSubscription
-  extends Promise<AsyncIterator<PricingEdgeNode>>,
-    Fragmentable {
-  node: <T = PricingSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface CityPreviousValuesNode {
-  id: ID_Output;
-  name: String;
-}
-
-export interface CityPreviousValues
-  extends Promise<CityPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-}
-
-export interface CityPreviousValuesSubscription
-  extends Promise<AsyncIterator<CityPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
-}
-
-export interface RestaurantEdgeNode {
-  cursor: String;
-}
-
-export interface RestaurantEdge
-  extends Promise<RestaurantEdgeNode>,
-    Fragmentable {
-  node: <T = Restaurant>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface RestaurantEdgeSubscription
-  extends Promise<AsyncIterator<RestaurantEdgeNode>>,
-    Fragmentable {
-  node: <T = RestaurantSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PoliciesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  updatedAt: DateTimeOutput;
-  checkInStartTime: Float;
-  checkInEndTime: Float;
-  checkoutTime: Float;
-}
-
-export interface Policies extends Promise<PoliciesNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  updatedAt: () => Promise<DateTimeOutput>;
-  checkInStartTime: () => Promise<Float>;
-  checkInEndTime: () => Promise<Float>;
-  checkoutTime: () => Promise<Float>;
-  place: <T = Place>() => T;
-}
-
-export interface PoliciesSubscription
-  extends Promise<AsyncIterator<PoliciesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  checkInStartTime: () => Promise<AsyncIterator<Float>>;
-  checkInEndTime: () => Promise<AsyncIterator<Float>>;
-  checkoutTime: () => Promise<AsyncIterator<Float>>;
-  place: <T = PlaceSubscription>() => T;
-}
-
-export interface NotificationEdgeNode {
-  cursor: String;
-}
-
-export interface NotificationEdge
-  extends Promise<NotificationEdgeNode>,
-    Fragmentable {
-  node: <T = Notification>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface NotificationEdgeSubscription
-  extends Promise<AsyncIterator<NotificationEdgeNode>>,
-    Fragmentable {
-  node: <T = NotificationSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PictureSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PictureSubscriptionPayload
-  extends Promise<PictureSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Picture>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PicturePreviousValues>() => T;
-}
-
-export interface PictureSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PictureSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PictureSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PicturePreviousValuesSubscription>() => T;
-}
-
-export interface MessageConnectionNode {}
-
-export interface MessageConnection
-  extends Promise<MessageConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<MessageEdgeNode>>>() => T;
-  aggregate: <T = AggregateMessage>() => T;
-}
-
-export interface MessageConnectionSubscription
-  extends Promise<AsyncIterator<MessageConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<MessageEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateMessageSubscription>() => T;
-}
-
-export interface PicturePreviousValuesNode {
-  id: ID_Output;
-  url: String;
-}
-
-export interface PicturePreviousValues
-  extends Promise<PicturePreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  url: () => Promise<String>;
-}
-
-export interface PicturePreviousValuesSubscription
-  extends Promise<AsyncIterator<PicturePreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  url: () => Promise<AsyncIterator<String>>;
-}
-
-export interface RestaurantSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface RestaurantSubscriptionPayload
-  extends Promise<RestaurantSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Restaurant>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = RestaurantPreviousValues>() => T;
-}
-
-export interface RestaurantSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<RestaurantSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = RestaurantSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = RestaurantPreviousValuesSubscription>() => T;
-}
-
-export interface GuestRequirementsNode {
-  id: ID_Output;
-  govIssuedId: Boolean;
-  recommendationsFromOtherHosts: Boolean;
-  guestTripInformation: Boolean;
-}
-
-export interface GuestRequirements
-  extends Promise<GuestRequirementsNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  govIssuedId: () => Promise<Boolean>;
-  recommendationsFromOtherHosts: () => Promise<Boolean>;
-  guestTripInformation: () => Promise<Boolean>;
-  place: <T = Place>() => T;
-}
-
-export interface GuestRequirementsSubscription
-  extends Promise<AsyncIterator<GuestRequirementsNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  govIssuedId: () => Promise<AsyncIterator<Boolean>>;
-  recommendationsFromOtherHosts: () => Promise<AsyncIterator<Boolean>>;
-  guestTripInformation: () => Promise<AsyncIterator<Boolean>>;
-  place: <T = PlaceSubscription>() => T;
 }
 
 export interface ReviewNode {
@@ -8644,755 +7102,47 @@ export interface ReviewSubscription
   experience: <T = ExperienceSubscription>() => T;
 }
 
-export interface ExperienceSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface ExperienceSubscriptionPayload
-  extends Promise<ExperienceSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Experience>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = ExperiencePreviousValues>() => T;
-}
-
-export interface ExperienceSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<ExperienceSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = ExperienceSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = ExperiencePreviousValuesSubscription>() => T;
-}
-
-export interface AggregatePaymentNode {
-  count: Int;
-}
-
-export interface AggregatePayment
-  extends Promise<AggregatePaymentNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePaymentSubscription
-  extends Promise<AsyncIterator<AggregatePaymentNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface ExperiencePreviousValuesNode {
-  id: ID_Output;
-  title: String;
-  pricePerPerson: Int;
-  popularity: Int;
-}
-
-export interface ExperiencePreviousValues
-  extends Promise<ExperiencePreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  title: () => Promise<String>;
-  pricePerPerson: () => Promise<Int>;
-  popularity: () => Promise<Int>;
-}
-
-export interface ExperiencePreviousValuesSubscription
-  extends Promise<AsyncIterator<ExperiencePreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  title: () => Promise<AsyncIterator<String>>;
-  pricePerPerson: () => Promise<AsyncIterator<Int>>;
-  popularity: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface BookingEdgeNode {
-  cursor: String;
-}
-
-export interface BookingEdge extends Promise<BookingEdgeNode>, Fragmentable {
-  node: <T = Booking>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface BookingEdgeSubscription
-  extends Promise<AsyncIterator<BookingEdgeNode>>,
-    Fragmentable {
-  node: <T = BookingSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface ViewsNode {
-  id: ID_Output;
-  lastWeek: Int;
-}
-
-export interface Views extends Promise<ViewsNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  lastWeek: () => Promise<Int>;
-  place: <T = Place>() => T;
-}
-
-export interface ViewsSubscription
-  extends Promise<AsyncIterator<ViewsNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  lastWeek: () => Promise<AsyncIterator<Int>>;
-  place: <T = PlaceSubscription>() => T;
-}
-
-export interface ReviewConnectionNode {}
-
-export interface ReviewConnection
-  extends Promise<ReviewConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<ReviewEdgeNode>>>() => T;
-  aggregate: <T = AggregateReview>() => T;
-}
-
-export interface ReviewConnectionSubscription
-  extends Promise<AsyncIterator<ReviewConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<ReviewEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateReviewSubscription>() => T;
-}
-
-export interface ExperienceCategorySubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface ExperienceCategorySubscriptionPayload
-  extends Promise<ExperienceCategorySubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = ExperienceCategory>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = ExperienceCategoryPreviousValues>() => T;
-}
-
-export interface ExperienceCategorySubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<ExperienceCategorySubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = ExperienceCategorySubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = ExperienceCategoryPreviousValuesSubscription>() => T;
-}
-
-export interface NotificationPreviousValuesNode {
+export interface MessagePreviousValuesNode {
   id: ID_Output;
   createdAt: DateTimeOutput;
-  type?: NOTIFICATION_TYPE;
-  link: String;
-  readDate: DateTimeOutput;
+  deliveredAt: DateTimeOutput;
+  readAt: DateTimeOutput;
 }
 
-export interface NotificationPreviousValues
-  extends Promise<NotificationPreviousValuesNode>,
+export interface MessagePreviousValues
+  extends Promise<MessagePreviousValuesNode>,
     Fragmentable {
   id: () => Promise<ID_Output>;
   createdAt: () => Promise<DateTimeOutput>;
-  type: () => Promise<NOTIFICATION_TYPE>;
-  link: () => Promise<String>;
-  readDate: () => Promise<DateTimeOutput>;
+  deliveredAt: () => Promise<DateTimeOutput>;
+  readAt: () => Promise<DateTimeOutput>;
 }
 
-export interface NotificationPreviousValuesSubscription
-  extends Promise<AsyncIterator<NotificationPreviousValuesNode>>,
+export interface MessagePreviousValuesSubscription
+  extends Promise<AsyncIterator<MessagePreviousValuesNode>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
   createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  type: () => Promise<AsyncIterator<NOTIFICATION_TYPE>>;
-  link: () => Promise<AsyncIterator<String>>;
-  readDate: () => Promise<AsyncIterator<DateTimeOutput>>;
+  deliveredAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  readAt: () => Promise<AsyncIterator<DateTimeOutput>>;
 }
 
-export interface ExperienceCategoryPreviousValuesNode {
+export interface NeighbourhoodNode {
   id: ID_Output;
-  mainColor: String;
   name: String;
-}
-
-export interface ExperienceCategoryPreviousValues
-  extends Promise<ExperienceCategoryPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  mainColor: () => Promise<String>;
-  name: () => Promise<String>;
-}
-
-export interface ExperienceCategoryPreviousValuesSubscription
-  extends Promise<AsyncIterator<ExperienceCategoryPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  mainColor: () => Promise<AsyncIterator<String>>;
-  name: () => Promise<AsyncIterator<String>>;
-}
-
-export interface NotificationSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface NotificationSubscriptionPayload
-  extends Promise<NotificationSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Notification>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = NotificationPreviousValues>() => T;
-}
-
-export interface NotificationSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<NotificationSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = NotificationSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = NotificationPreviousValuesSubscription>() => T;
-}
-
-export interface PricingNode {
-  id: ID_Output;
-  monthlyDiscount?: Int;
-  weeklyDiscount?: Int;
-  perNight: Int;
-  smartPricing: Boolean;
-  basePrice: Int;
-  averageWeekly: Int;
-  averageMonthly: Int;
-  cleaningFee?: Int;
-  securityDeposit?: Int;
-  extraGuests?: Int;
-  weekendPricing?: Int;
-  currency?: CURRENCY;
-}
-
-export interface Pricing extends Promise<PricingNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  place: <T = Place>() => T;
-  monthlyDiscount: () => Promise<Int>;
-  weeklyDiscount: () => Promise<Int>;
-  perNight: () => Promise<Int>;
-  smartPricing: () => Promise<Boolean>;
-  basePrice: () => Promise<Int>;
-  averageWeekly: () => Promise<Int>;
-  averageMonthly: () => Promise<Int>;
-  cleaningFee: () => Promise<Int>;
-  securityDeposit: () => Promise<Int>;
-  extraGuests: () => Promise<Int>;
-  weekendPricing: () => Promise<Int>;
-  currency: () => Promise<CURRENCY>;
-}
-
-export interface PricingSubscription
-  extends Promise<AsyncIterator<PricingNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  place: <T = PlaceSubscription>() => T;
-  monthlyDiscount: () => Promise<AsyncIterator<Int>>;
-  weeklyDiscount: () => Promise<AsyncIterator<Int>>;
-  perNight: () => Promise<AsyncIterator<Int>>;
-  smartPricing: () => Promise<AsyncIterator<Boolean>>;
-  basePrice: () => Promise<AsyncIterator<Int>>;
-  averageWeekly: () => Promise<AsyncIterator<Int>>;
-  averageMonthly: () => Promise<AsyncIterator<Int>>;
-  cleaningFee: () => Promise<AsyncIterator<Int>>;
-  securityDeposit: () => Promise<AsyncIterator<Int>>;
-  extraGuests: () => Promise<AsyncIterator<Int>>;
-  weekendPricing: () => Promise<AsyncIterator<Int>>;
-  currency: () => Promise<AsyncIterator<CURRENCY>>;
-}
-
-export interface AggregatePictureNode {
-  count: Int;
-}
-
-export interface AggregatePicture
-  extends Promise<AggregatePictureNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePictureSubscription
-  extends Promise<AsyncIterator<AggregatePictureNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AmenitiesSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface AmenitiesSubscriptionPayload
-  extends Promise<AmenitiesSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Amenities>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = AmenitiesPreviousValues>() => T;
-}
-
-export interface AmenitiesSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<AmenitiesSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = AmenitiesSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = AmenitiesPreviousValuesSubscription>() => T;
-}
-
-export interface CityEdgeNode {
-  cursor: String;
-}
-
-export interface CityEdge extends Promise<CityEdgeNode>, Fragmentable {
-  node: <T = City>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface CityEdgeSubscription
-  extends Promise<AsyncIterator<CityEdgeNode>>,
-    Fragmentable {
-  node: <T = CitySubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface AmenitiesPreviousValuesNode {
-  id: ID_Output;
-  elevator: Boolean;
-  petsAllowed: Boolean;
-  internet: Boolean;
-  kitchen: Boolean;
-  wirelessInternet: Boolean;
-  familyKidFriendly: Boolean;
-  freeParkingOnPremises: Boolean;
-  hotTub: Boolean;
-  pool: Boolean;
-  smokingAllowed: Boolean;
-  wheelchairAccessible: Boolean;
-  breakfast: Boolean;
-  cableTv: Boolean;
-  suitableForEvents: Boolean;
-  dryer: Boolean;
-  washer: Boolean;
-  indoorFireplace: Boolean;
-  tv: Boolean;
-  heating: Boolean;
-  hangers: Boolean;
-  iron: Boolean;
-  hairDryer: Boolean;
-  doorman: Boolean;
-  paidParkingOffPremises: Boolean;
-  freeParkingOnStreet: Boolean;
-  gym: Boolean;
-  airConditioning: Boolean;
-  shampoo: Boolean;
-  essentials: Boolean;
-  laptopFriendlyWorkspace: Boolean;
-  privateEntrance: Boolean;
-  buzzerWirelessIntercom: Boolean;
-  babyBath: Boolean;
-  babyMonitor: Boolean;
-  babysitterRecommendations: Boolean;
-  bathtub: Boolean;
-  changingTable: Boolean;
-  childrensBooksAndToys: Boolean;
-  childrensDinnerware: Boolean;
-  crib: Boolean;
-}
-
-export interface AmenitiesPreviousValues
-  extends Promise<AmenitiesPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  elevator: () => Promise<Boolean>;
-  petsAllowed: () => Promise<Boolean>;
-  internet: () => Promise<Boolean>;
-  kitchen: () => Promise<Boolean>;
-  wirelessInternet: () => Promise<Boolean>;
-  familyKidFriendly: () => Promise<Boolean>;
-  freeParkingOnPremises: () => Promise<Boolean>;
-  hotTub: () => Promise<Boolean>;
-  pool: () => Promise<Boolean>;
-  smokingAllowed: () => Promise<Boolean>;
-  wheelchairAccessible: () => Promise<Boolean>;
-  breakfast: () => Promise<Boolean>;
-  cableTv: () => Promise<Boolean>;
-  suitableForEvents: () => Promise<Boolean>;
-  dryer: () => Promise<Boolean>;
-  washer: () => Promise<Boolean>;
-  indoorFireplace: () => Promise<Boolean>;
-  tv: () => Promise<Boolean>;
-  heating: () => Promise<Boolean>;
-  hangers: () => Promise<Boolean>;
-  iron: () => Promise<Boolean>;
-  hairDryer: () => Promise<Boolean>;
-  doorman: () => Promise<Boolean>;
-  paidParkingOffPremises: () => Promise<Boolean>;
-  freeParkingOnStreet: () => Promise<Boolean>;
-  gym: () => Promise<Boolean>;
-  airConditioning: () => Promise<Boolean>;
-  shampoo: () => Promise<Boolean>;
-  essentials: () => Promise<Boolean>;
-  laptopFriendlyWorkspace: () => Promise<Boolean>;
-  privateEntrance: () => Promise<Boolean>;
-  buzzerWirelessIntercom: () => Promise<Boolean>;
-  babyBath: () => Promise<Boolean>;
-  babyMonitor: () => Promise<Boolean>;
-  babysitterRecommendations: () => Promise<Boolean>;
-  bathtub: () => Promise<Boolean>;
-  changingTable: () => Promise<Boolean>;
-  childrensBooksAndToys: () => Promise<Boolean>;
-  childrensDinnerware: () => Promise<Boolean>;
-  crib: () => Promise<Boolean>;
-}
-
-export interface AmenitiesPreviousValuesSubscription
-  extends Promise<AsyncIterator<AmenitiesPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  elevator: () => Promise<AsyncIterator<Boolean>>;
-  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  internet: () => Promise<AsyncIterator<Boolean>>;
-  kitchen: () => Promise<AsyncIterator<Boolean>>;
-  wirelessInternet: () => Promise<AsyncIterator<Boolean>>;
-  familyKidFriendly: () => Promise<AsyncIterator<Boolean>>;
-  freeParkingOnPremises: () => Promise<AsyncIterator<Boolean>>;
-  hotTub: () => Promise<AsyncIterator<Boolean>>;
-  pool: () => Promise<AsyncIterator<Boolean>>;
-  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
-  wheelchairAccessible: () => Promise<AsyncIterator<Boolean>>;
-  breakfast: () => Promise<AsyncIterator<Boolean>>;
-  cableTv: () => Promise<AsyncIterator<Boolean>>;
-  suitableForEvents: () => Promise<AsyncIterator<Boolean>>;
-  dryer: () => Promise<AsyncIterator<Boolean>>;
-  washer: () => Promise<AsyncIterator<Boolean>>;
-  indoorFireplace: () => Promise<AsyncIterator<Boolean>>;
-  tv: () => Promise<AsyncIterator<Boolean>>;
-  heating: () => Promise<AsyncIterator<Boolean>>;
-  hangers: () => Promise<AsyncIterator<Boolean>>;
-  iron: () => Promise<AsyncIterator<Boolean>>;
-  hairDryer: () => Promise<AsyncIterator<Boolean>>;
-  doorman: () => Promise<AsyncIterator<Boolean>>;
-  paidParkingOffPremises: () => Promise<AsyncIterator<Boolean>>;
-  freeParkingOnStreet: () => Promise<AsyncIterator<Boolean>>;
-  gym: () => Promise<AsyncIterator<Boolean>>;
-  airConditioning: () => Promise<AsyncIterator<Boolean>>;
-  shampoo: () => Promise<AsyncIterator<Boolean>>;
-  essentials: () => Promise<AsyncIterator<Boolean>>;
-  laptopFriendlyWorkspace: () => Promise<AsyncIterator<Boolean>>;
-  privateEntrance: () => Promise<AsyncIterator<Boolean>>;
-  buzzerWirelessIntercom: () => Promise<AsyncIterator<Boolean>>;
-  babyBath: () => Promise<AsyncIterator<Boolean>>;
-  babyMonitor: () => Promise<AsyncIterator<Boolean>>;
-  babysitterRecommendations: () => Promise<AsyncIterator<Boolean>>;
-  bathtub: () => Promise<AsyncIterator<Boolean>>;
-  changingTable: () => Promise<AsyncIterator<Boolean>>;
-  childrensBooksAndToys: () => Promise<AsyncIterator<Boolean>>;
-  childrensDinnerware: () => Promise<AsyncIterator<Boolean>>;
-  crib: () => Promise<AsyncIterator<Boolean>>;
-}
-
-export interface NeighbourhoodConnectionNode {}
-
-export interface NeighbourhoodConnection
-  extends Promise<NeighbourhoodConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<NeighbourhoodEdgeNode>>>() => T;
-  aggregate: <T = AggregateNeighbourhood>() => T;
-}
-
-export interface NeighbourhoodConnectionSubscription
-  extends Promise<AsyncIterator<NeighbourhoodConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <
-    T = Promise<AsyncIterator<Array<NeighbourhoodEdgeSubscription>>>
-  >() => T;
-  aggregate: <T = AggregateNeighbourhoodSubscription>() => T;
-}
-
-export interface AmenitiesNode {
-  id: ID_Output;
-  elevator: Boolean;
-  petsAllowed: Boolean;
-  internet: Boolean;
-  kitchen: Boolean;
-  wirelessInternet: Boolean;
-  familyKidFriendly: Boolean;
-  freeParkingOnPremises: Boolean;
-  hotTub: Boolean;
-  pool: Boolean;
-  smokingAllowed: Boolean;
-  wheelchairAccessible: Boolean;
-  breakfast: Boolean;
-  cableTv: Boolean;
-  suitableForEvents: Boolean;
-  dryer: Boolean;
-  washer: Boolean;
-  indoorFireplace: Boolean;
-  tv: Boolean;
-  heating: Boolean;
-  hangers: Boolean;
-  iron: Boolean;
-  hairDryer: Boolean;
-  doorman: Boolean;
-  paidParkingOffPremises: Boolean;
-  freeParkingOnStreet: Boolean;
-  gym: Boolean;
-  airConditioning: Boolean;
-  shampoo: Boolean;
-  essentials: Boolean;
-  laptopFriendlyWorkspace: Boolean;
-  privateEntrance: Boolean;
-  buzzerWirelessIntercom: Boolean;
-  babyBath: Boolean;
-  babyMonitor: Boolean;
-  babysitterRecommendations: Boolean;
-  bathtub: Boolean;
-  changingTable: Boolean;
-  childrensBooksAndToys: Boolean;
-  childrensDinnerware: Boolean;
-  crib: Boolean;
-}
-
-export interface Amenities extends Promise<AmenitiesNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  place: <T = Place>() => T;
-  elevator: () => Promise<Boolean>;
-  petsAllowed: () => Promise<Boolean>;
-  internet: () => Promise<Boolean>;
-  kitchen: () => Promise<Boolean>;
-  wirelessInternet: () => Promise<Boolean>;
-  familyKidFriendly: () => Promise<Boolean>;
-  freeParkingOnPremises: () => Promise<Boolean>;
-  hotTub: () => Promise<Boolean>;
-  pool: () => Promise<Boolean>;
-  smokingAllowed: () => Promise<Boolean>;
-  wheelchairAccessible: () => Promise<Boolean>;
-  breakfast: () => Promise<Boolean>;
-  cableTv: () => Promise<Boolean>;
-  suitableForEvents: () => Promise<Boolean>;
-  dryer: () => Promise<Boolean>;
-  washer: () => Promise<Boolean>;
-  indoorFireplace: () => Promise<Boolean>;
-  tv: () => Promise<Boolean>;
-  heating: () => Promise<Boolean>;
-  hangers: () => Promise<Boolean>;
-  iron: () => Promise<Boolean>;
-  hairDryer: () => Promise<Boolean>;
-  doorman: () => Promise<Boolean>;
-  paidParkingOffPremises: () => Promise<Boolean>;
-  freeParkingOnStreet: () => Promise<Boolean>;
-  gym: () => Promise<Boolean>;
-  airConditioning: () => Promise<Boolean>;
-  shampoo: () => Promise<Boolean>;
-  essentials: () => Promise<Boolean>;
-  laptopFriendlyWorkspace: () => Promise<Boolean>;
-  privateEntrance: () => Promise<Boolean>;
-  buzzerWirelessIntercom: () => Promise<Boolean>;
-  babyBath: () => Promise<Boolean>;
-  babyMonitor: () => Promise<Boolean>;
-  babysitterRecommendations: () => Promise<Boolean>;
-  bathtub: () => Promise<Boolean>;
-  changingTable: () => Promise<Boolean>;
-  childrensBooksAndToys: () => Promise<Boolean>;
-  childrensDinnerware: () => Promise<Boolean>;
-  crib: () => Promise<Boolean>;
-}
-
-export interface AmenitiesSubscription
-  extends Promise<AsyncIterator<AmenitiesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  place: <T = PlaceSubscription>() => T;
-  elevator: () => Promise<AsyncIterator<Boolean>>;
-  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
-  internet: () => Promise<AsyncIterator<Boolean>>;
-  kitchen: () => Promise<AsyncIterator<Boolean>>;
-  wirelessInternet: () => Promise<AsyncIterator<Boolean>>;
-  familyKidFriendly: () => Promise<AsyncIterator<Boolean>>;
-  freeParkingOnPremises: () => Promise<AsyncIterator<Boolean>>;
-  hotTub: () => Promise<AsyncIterator<Boolean>>;
-  pool: () => Promise<AsyncIterator<Boolean>>;
-  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
-  wheelchairAccessible: () => Promise<AsyncIterator<Boolean>>;
-  breakfast: () => Promise<AsyncIterator<Boolean>>;
-  cableTv: () => Promise<AsyncIterator<Boolean>>;
-  suitableForEvents: () => Promise<AsyncIterator<Boolean>>;
-  dryer: () => Promise<AsyncIterator<Boolean>>;
-  washer: () => Promise<AsyncIterator<Boolean>>;
-  indoorFireplace: () => Promise<AsyncIterator<Boolean>>;
-  tv: () => Promise<AsyncIterator<Boolean>>;
-  heating: () => Promise<AsyncIterator<Boolean>>;
-  hangers: () => Promise<AsyncIterator<Boolean>>;
-  iron: () => Promise<AsyncIterator<Boolean>>;
-  hairDryer: () => Promise<AsyncIterator<Boolean>>;
-  doorman: () => Promise<AsyncIterator<Boolean>>;
-  paidParkingOffPremises: () => Promise<AsyncIterator<Boolean>>;
-  freeParkingOnStreet: () => Promise<AsyncIterator<Boolean>>;
-  gym: () => Promise<AsyncIterator<Boolean>>;
-  airConditioning: () => Promise<AsyncIterator<Boolean>>;
-  shampoo: () => Promise<AsyncIterator<Boolean>>;
-  essentials: () => Promise<AsyncIterator<Boolean>>;
-  laptopFriendlyWorkspace: () => Promise<AsyncIterator<Boolean>>;
-  privateEntrance: () => Promise<AsyncIterator<Boolean>>;
-  buzzerWirelessIntercom: () => Promise<AsyncIterator<Boolean>>;
-  babyBath: () => Promise<AsyncIterator<Boolean>>;
-  babyMonitor: () => Promise<AsyncIterator<Boolean>>;
-  babysitterRecommendations: () => Promise<AsyncIterator<Boolean>>;
-  bathtub: () => Promise<AsyncIterator<Boolean>>;
-  changingTable: () => Promise<AsyncIterator<Boolean>>;
-  childrensBooksAndToys: () => Promise<AsyncIterator<Boolean>>;
-  childrensDinnerware: () => Promise<AsyncIterator<Boolean>>;
-  crib: () => Promise<AsyncIterator<Boolean>>;
-}
-
-export interface AggregateViewsNode {
-  count: Int;
-}
-
-export interface AggregateViews
-  extends Promise<AggregateViewsNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateViewsSubscription
-  extends Promise<AsyncIterator<AggregateViewsNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface ReviewSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface ReviewSubscriptionPayload
-  extends Promise<ReviewSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Review>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = ReviewPreviousValues>() => T;
-}
-
-export interface ReviewSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<ReviewSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = ReviewSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = ReviewPreviousValuesSubscription>() => T;
-}
-
-export interface HouseRulesEdgeNode {
-  cursor: String;
-}
-
-export interface HouseRulesEdge
-  extends Promise<HouseRulesEdgeNode>,
-    Fragmentable {
-  node: <T = HouseRules>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface HouseRulesEdgeSubscription
-  extends Promise<AsyncIterator<HouseRulesEdgeNode>>,
-    Fragmentable {
-  node: <T = HouseRulesSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface ReviewPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  text: String;
-  stars: Int;
-  accuracy: Int;
-  location: Int;
-  checkIn: Int;
-  value: Int;
-  cleanliness: Int;
-  communication: Int;
-}
-
-export interface ReviewPreviousValues
-  extends Promise<ReviewPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  text: () => Promise<String>;
-  stars: () => Promise<Int>;
-  accuracy: () => Promise<Int>;
-  location: () => Promise<Int>;
-  checkIn: () => Promise<Int>;
-  value: () => Promise<Int>;
-  cleanliness: () => Promise<Int>;
-  communication: () => Promise<Int>;
-}
-
-export interface ReviewPreviousValuesSubscription
-  extends Promise<AsyncIterator<ReviewPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  text: () => Promise<AsyncIterator<String>>;
-  stars: () => Promise<AsyncIterator<Int>>;
-  accuracy: () => Promise<AsyncIterator<Int>>;
-  location: () => Promise<AsyncIterator<Int>>;
-  checkIn: () => Promise<AsyncIterator<Int>>;
-  value: () => Promise<AsyncIterator<Int>>;
-  cleanliness: () => Promise<AsyncIterator<Int>>;
-  communication: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PoliciesConnectionNode {}
-
-export interface PoliciesConnection
-  extends Promise<PoliciesConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PoliciesEdgeNode>>>() => T;
-  aggregate: <T = AggregatePolicies>() => T;
-}
-
-export interface PoliciesConnectionSubscription
-  extends Promise<AsyncIterator<PoliciesConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<PoliciesEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregatePoliciesSubscription>() => T;
-}
-
-export interface RestaurantNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  title: String;
-  avgPricePerPerson: Int;
-  isCurated: Boolean;
   slug: String;
+  featured: Boolean;
   popularity: Int;
 }
 
-export interface Restaurant extends Promise<RestaurantNode>, Fragmentable {
+export interface Neighbourhood
+  extends Promise<NeighbourhoodNode>,
+    Fragmentable {
   id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  title: () => Promise<String>;
-  avgPricePerPerson: () => Promise<Int>;
-  pictures: <T = Promise<Array<PictureNode>>>(
+  locations: <T = Promise<Array<LocationNode>>>(
     args?: {
-      where?: PictureWhereInput;
-      orderBy?: PictureOrderByInput;
+      where?: LocationWhereInput;
+      orderBy?: LocationOrderByInput;
       skip?: Int;
       after?: String;
       before?: String;
@@ -9400,23 +7150,22 @@ export interface Restaurant extends Promise<RestaurantNode>, Fragmentable {
       last?: Int;
     }
   ) => T;
-  location: <T = Location>() => T;
-  isCurated: () => Promise<Boolean>;
+  name: () => Promise<String>;
   slug: () => Promise<String>;
+  homePreview: <T = Picture>() => T;
+  city: <T = City>() => T;
+  featured: () => Promise<Boolean>;
   popularity: () => Promise<Int>;
 }
 
-export interface RestaurantSubscription
-  extends Promise<AsyncIterator<RestaurantNode>>,
+export interface NeighbourhoodSubscription
+  extends Promise<AsyncIterator<NeighbourhoodNode>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  title: () => Promise<AsyncIterator<String>>;
-  avgPricePerPerson: () => Promise<AsyncIterator<Int>>;
-  pictures: <T = Promise<AsyncIterator<Array<PictureSubscription>>>>(
+  locations: <T = Promise<AsyncIterator<Array<LocationSubscription>>>>(
     args?: {
-      where?: PictureWhereInput;
-      orderBy?: PictureOrderByInput;
+      where?: LocationWhereInput;
+      orderBy?: LocationOrderByInput;
       skip?: Int;
       after?: String;
       before?: String;
@@ -9424,49 +7173,66 @@ export interface RestaurantSubscription
       last?: Int;
     }
   ) => T;
-  location: <T = LocationSubscription>() => T;
-  isCurated: () => Promise<AsyncIterator<Boolean>>;
+  name: () => Promise<AsyncIterator<String>>;
   slug: () => Promise<AsyncIterator<String>>;
+  homePreview: <T = PictureSubscription>() => T;
+  city: <T = CitySubscription>() => T;
+  featured: () => Promise<AsyncIterator<Boolean>>;
   popularity: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface AggregatePricingNode {
-  count: Int;
-}
+export interface RestaurantConnectionNode {}
 
-export interface AggregatePricing
-  extends Promise<AggregatePricingNode>,
+export interface RestaurantConnection
+  extends Promise<RestaurantConnectionNode>,
     Fragmentable {
-  count: () => Promise<Int>;
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<RestaurantEdgeNode>>>() => T;
+  aggregate: <T = AggregateRestaurant>() => T;
 }
 
-export interface AggregatePricingSubscription
-  extends Promise<AsyncIterator<AggregatePricingNode>>,
+export interface RestaurantConnectionSubscription
+  extends Promise<AsyncIterator<RestaurantConnectionNode>>,
     Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<RestaurantEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateRestaurantSubscription>() => T;
 }
 
-export interface BookingSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
+export interface RestaurantEdgeNode {
+  cursor: String;
 }
 
-export interface BookingSubscriptionPayload
-  extends Promise<BookingSubscriptionPayloadNode>,
+export interface RestaurantEdge
+  extends Promise<RestaurantEdgeNode>,
     Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Booking>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = BookingPreviousValues>() => T;
+  node: <T = Restaurant>() => T;
+  cursor: () => Promise<String>;
 }
 
-export interface BookingSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<BookingSubscriptionPayloadNode>>,
+export interface RestaurantEdgeSubscription
+  extends Promise<AsyncIterator<RestaurantEdgeNode>>,
     Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = BookingSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = BookingPreviousValuesSubscription>() => T;
+  node: <T = RestaurantSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface NotificationEdgeNode {
+  cursor: String;
+}
+
+export interface NotificationEdge
+  extends Promise<NotificationEdgeNode>,
+    Fragmentable {
+  node: <T = Notification>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface NotificationEdgeSubscription
+  extends Promise<AsyncIterator<NotificationEdgeNode>>,
+    Fragmentable {
+  node: <T = NotificationSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
 }
 
 export interface UserNode {
@@ -9675,6 +7441,2347 @@ export interface UserSubscription
   ) => T;
 }
 
+export interface AggregateMessageNode {
+  count: Int;
+}
+
+export interface AggregateMessage
+  extends Promise<AggregateMessageNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateMessageSubscription
+  extends Promise<AsyncIterator<AggregateMessageNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface UserSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface UserSubscriptionPayload
+  extends Promise<UserSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = User>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = UserPreviousValues>() => T;
+}
+
+export interface UserSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<UserSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = UserSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = UserPreviousValuesSubscription>() => T;
+}
+
+export interface MessageConnectionNode {}
+
+export interface MessageConnection
+  extends Promise<MessageConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<MessageEdgeNode>>>() => T;
+  aggregate: <T = AggregateMessage>() => T;
+}
+
+export interface MessageConnectionSubscription
+  extends Promise<AsyncIterator<MessageConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<MessageEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateMessageSubscription>() => T;
+}
+
+export interface UserPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+  firstName: String;
+  lastName: String;
+  email: String;
+  password: String;
+  phone: String;
+  responseRate?: Float;
+  responseTime?: Int;
+  isSuperHost: Boolean;
+}
+
+export interface UserPreviousValues
+  extends Promise<UserPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+  firstName: () => Promise<String>;
+  lastName: () => Promise<String>;
+  email: () => Promise<String>;
+  password: () => Promise<String>;
+  phone: () => Promise<String>;
+  responseRate: () => Promise<Float>;
+  responseTime: () => Promise<Int>;
+  isSuperHost: () => Promise<Boolean>;
+}
+
+export interface UserPreviousValuesSubscription
+  extends Promise<AsyncIterator<UserPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  firstName: () => Promise<AsyncIterator<String>>;
+  lastName: () => Promise<AsyncIterator<String>>;
+  email: () => Promise<AsyncIterator<String>>;
+  password: () => Promise<AsyncIterator<String>>;
+  phone: () => Promise<AsyncIterator<String>>;
+  responseRate: () => Promise<AsyncIterator<Float>>;
+  responseTime: () => Promise<AsyncIterator<Int>>;
+  isSuperHost: () => Promise<AsyncIterator<Boolean>>;
+}
+
+export interface CreditCardInformationEdgeNode {
+  cursor: String;
+}
+
+export interface CreditCardInformationEdge
+  extends Promise<CreditCardInformationEdgeNode>,
+    Fragmentable {
+  node: <T = CreditCardInformation>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface CreditCardInformationEdgeSubscription
+  extends Promise<AsyncIterator<CreditCardInformationEdgeNode>>,
+    Fragmentable {
+  node: <T = CreditCardInformationSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PlaceConnectionNode {}
+
+export interface PlaceConnection
+  extends Promise<PlaceConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PlaceEdgeNode>>>() => T;
+  aggregate: <T = AggregatePlace>() => T;
+}
+
+export interface PlaceConnectionSubscription
+  extends Promise<AsyncIterator<PlaceConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<PlaceEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregatePlaceSubscription>() => T;
+}
+
+export interface RestaurantSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface RestaurantSubscriptionPayload
+  extends Promise<RestaurantSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Restaurant>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = RestaurantPreviousValues>() => T;
+}
+
+export interface RestaurantSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<RestaurantSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = RestaurantSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = RestaurantPreviousValuesSubscription>() => T;
+}
+
+export interface PlaceSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PlaceSubscriptionPayload
+  extends Promise<PlaceSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Place>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PlacePreviousValues>() => T;
+}
+
+export interface PlaceSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PlaceSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PlaceSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PlacePreviousValuesSubscription>() => T;
+}
+
+export interface PaypalInformationEdgeNode {
+  cursor: String;
+}
+
+export interface PaypalInformationEdge
+  extends Promise<PaypalInformationEdgeNode>,
+    Fragmentable {
+  node: <T = PaypalInformation>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PaypalInformationEdgeSubscription
+  extends Promise<AsyncIterator<PaypalInformationEdgeNode>>,
+    Fragmentable {
+  node: <T = PaypalInformationSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PlacePreviousValuesNode {
+  id: ID_Output;
+  name: String;
+  size?: PLACE_SIZES;
+  shortDescription: String;
+  description: String;
+  slug: String;
+  maxGuests: Int;
+  numBedrooms: Int;
+  numBeds: Int;
+  numBaths: Int;
+  popularity: Int;
+}
+
+export interface PlacePreviousValues
+  extends Promise<PlacePreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+  size: () => Promise<PLACE_SIZES>;
+  shortDescription: () => Promise<String>;
+  description: () => Promise<String>;
+  slug: () => Promise<String>;
+  maxGuests: () => Promise<Int>;
+  numBedrooms: () => Promise<Int>;
+  numBeds: () => Promise<Int>;
+  numBaths: () => Promise<Int>;
+  popularity: () => Promise<Int>;
+}
+
+export interface PlacePreviousValuesSubscription
+  extends Promise<AsyncIterator<PlacePreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  name: () => Promise<AsyncIterator<String>>;
+  size: () => Promise<AsyncIterator<PLACE_SIZES>>;
+  shortDescription: () => Promise<AsyncIterator<String>>;
+  description: () => Promise<AsyncIterator<String>>;
+  slug: () => Promise<AsyncIterator<String>>;
+  maxGuests: () => Promise<AsyncIterator<Int>>;
+  numBedrooms: () => Promise<AsyncIterator<Int>>;
+  numBeds: () => Promise<AsyncIterator<Int>>;
+  numBaths: () => Promise<AsyncIterator<Int>>;
+  popularity: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface LocationNode {
+  id: ID_Output;
+  lat: Float;
+  lng: Float;
+  address?: String;
+  directions?: String;
+}
+
+export interface Location extends Promise<LocationNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  lat: () => Promise<Float>;
+  lng: () => Promise<Float>;
+  neighbourHood: <T = Neighbourhood>() => T;
+  user: <T = User>() => T;
+  place: <T = Place>() => T;
+  address: () => Promise<String>;
+  directions: () => Promise<String>;
+  experience: <T = Experience>() => T;
+  restaurant: <T = Restaurant>() => T;
+}
+
+export interface LocationSubscription
+  extends Promise<AsyncIterator<LocationNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  lat: () => Promise<AsyncIterator<Float>>;
+  lng: () => Promise<AsyncIterator<Float>>;
+  neighbourHood: <T = NeighbourhoodSubscription>() => T;
+  user: <T = UserSubscription>() => T;
+  place: <T = PlaceSubscription>() => T;
+  address: () => Promise<AsyncIterator<String>>;
+  directions: () => Promise<AsyncIterator<String>>;
+  experience: <T = ExperienceSubscription>() => T;
+  restaurant: <T = RestaurantSubscription>() => T;
+}
+
+export interface AggregateUserNode {
+  count: Int;
+}
+
+export interface AggregateUser
+  extends Promise<AggregateUserNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateUserSubscription
+  extends Promise<AsyncIterator<AggregateUserNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PaymentAccountEdgeNode {
+  cursor: String;
+}
+
+export interface PaymentAccountEdge
+  extends Promise<PaymentAccountEdgeNode>,
+    Fragmentable {
+  node: <T = PaymentAccount>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PaymentAccountEdgeSubscription
+  extends Promise<AsyncIterator<PaymentAccountEdgeNode>>,
+    Fragmentable {
+  node: <T = PaymentAccountSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PricingSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PricingSubscriptionPayload
+  extends Promise<PricingSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Pricing>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PricingPreviousValues>() => T;
+}
+
+export interface PricingSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PricingSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PricingSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PricingPreviousValuesSubscription>() => T;
+}
+
+export interface AggregatePaymentNode {
+  count: Int;
+}
+
+export interface AggregatePayment
+  extends Promise<AggregatePaymentNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePaymentSubscription
+  extends Promise<AsyncIterator<AggregatePaymentNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PricingPreviousValuesNode {
+  id: ID_Output;
+  monthlyDiscount?: Int;
+  weeklyDiscount?: Int;
+  perNight: Int;
+  smartPricing: Boolean;
+  basePrice: Int;
+  averageWeekly: Int;
+  averageMonthly: Int;
+  cleaningFee?: Int;
+  securityDeposit?: Int;
+  extraGuests?: Int;
+  weekendPricing?: Int;
+  currency?: CURRENCY;
+}
+
+export interface PricingPreviousValues
+  extends Promise<PricingPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  monthlyDiscount: () => Promise<Int>;
+  weeklyDiscount: () => Promise<Int>;
+  perNight: () => Promise<Int>;
+  smartPricing: () => Promise<Boolean>;
+  basePrice: () => Promise<Int>;
+  averageWeekly: () => Promise<Int>;
+  averageMonthly: () => Promise<Int>;
+  cleaningFee: () => Promise<Int>;
+  securityDeposit: () => Promise<Int>;
+  extraGuests: () => Promise<Int>;
+  weekendPricing: () => Promise<Int>;
+  currency: () => Promise<CURRENCY>;
+}
+
+export interface PricingPreviousValuesSubscription
+  extends Promise<AsyncIterator<PricingPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  monthlyDiscount: () => Promise<AsyncIterator<Int>>;
+  weeklyDiscount: () => Promise<AsyncIterator<Int>>;
+  perNight: () => Promise<AsyncIterator<Int>>;
+  smartPricing: () => Promise<AsyncIterator<Boolean>>;
+  basePrice: () => Promise<AsyncIterator<Int>>;
+  averageWeekly: () => Promise<AsyncIterator<Int>>;
+  averageMonthly: () => Promise<AsyncIterator<Int>>;
+  cleaningFee: () => Promise<AsyncIterator<Int>>;
+  securityDeposit: () => Promise<AsyncIterator<Int>>;
+  extraGuests: () => Promise<AsyncIterator<Int>>;
+  weekendPricing: () => Promise<AsyncIterator<Int>>;
+  currency: () => Promise<AsyncIterator<CURRENCY>>;
+}
+
+export interface PaymentConnectionNode {}
+
+export interface PaymentConnection
+  extends Promise<PaymentConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PaymentEdgeNode>>>() => T;
+  aggregate: <T = AggregatePayment>() => T;
+}
+
+export interface PaymentConnectionSubscription
+  extends Promise<AsyncIterator<PaymentConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<PaymentEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregatePaymentSubscription>() => T;
+}
+
+export interface UserEdgeNode {
+  cursor: String;
+}
+
+export interface UserEdge extends Promise<UserEdgeNode>, Fragmentable {
+  node: <T = User>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface UserEdgeSubscription
+  extends Promise<AsyncIterator<UserEdgeNode>>,
+    Fragmentable {
+  node: <T = UserSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface BookingEdgeNode {
+  cursor: String;
+}
+
+export interface BookingEdge extends Promise<BookingEdgeNode>, Fragmentable {
+  node: <T = Booking>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface BookingEdgeSubscription
+  extends Promise<AsyncIterator<BookingEdgeNode>>,
+    Fragmentable {
+  node: <T = BookingSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface GuestRequirementsSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface GuestRequirementsSubscriptionPayload
+  extends Promise<GuestRequirementsSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = GuestRequirements>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = GuestRequirementsPreviousValues>() => T;
+}
+
+export interface GuestRequirementsSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<GuestRequirementsSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = GuestRequirementsSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = GuestRequirementsPreviousValuesSubscription>() => T;
+}
+
+export interface AggregateReviewNode {
+  count: Int;
+}
+
+export interface AggregateReview
+  extends Promise<AggregateReviewNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateReviewSubscription
+  extends Promise<AsyncIterator<AggregateReviewNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface GuestRequirementsPreviousValuesNode {
+  id: ID_Output;
+  govIssuedId: Boolean;
+  recommendationsFromOtherHosts: Boolean;
+  guestTripInformation: Boolean;
+}
+
+export interface GuestRequirementsPreviousValues
+  extends Promise<GuestRequirementsPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  govIssuedId: () => Promise<Boolean>;
+  recommendationsFromOtherHosts: () => Promise<Boolean>;
+  guestTripInformation: () => Promise<Boolean>;
+}
+
+export interface GuestRequirementsPreviousValuesSubscription
+  extends Promise<AsyncIterator<GuestRequirementsPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  govIssuedId: () => Promise<AsyncIterator<Boolean>>;
+  recommendationsFromOtherHosts: () => Promise<AsyncIterator<Boolean>>;
+  guestTripInformation: () => Promise<AsyncIterator<Boolean>>;
+}
+
+export interface ReviewConnectionNode {}
+
+export interface ReviewConnection
+  extends Promise<ReviewConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<ReviewEdgeNode>>>() => T;
+  aggregate: <T = AggregateReview>() => T;
+}
+
+export interface ReviewConnectionSubscription
+  extends Promise<AsyncIterator<ReviewConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<ReviewEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateReviewSubscription>() => T;
+}
+
+export interface PageInfoNode {
+  hasNextPage: Boolean;
+  hasPreviousPage: Boolean;
+  startCursor?: String;
+  endCursor?: String;
+}
+
+export interface PageInfo extends Promise<PageInfoNode>, Fragmentable {
+  hasNextPage: () => Promise<Boolean>;
+  hasPreviousPage: () => Promise<Boolean>;
+  startCursor: () => Promise<String>;
+  endCursor: () => Promise<String>;
+}
+
+export interface PageInfoSubscription
+  extends Promise<AsyncIterator<PageInfoNode>>,
+    Fragmentable {
+  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
+  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
+  startCursor: () => Promise<AsyncIterator<String>>;
+  endCursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AmenitiesEdgeNode {
+  cursor: String;
+}
+
+export interface AmenitiesEdge
+  extends Promise<AmenitiesEdgeNode>,
+    Fragmentable {
+  node: <T = Amenities>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface AmenitiesEdgeSubscription
+  extends Promise<AsyncIterator<AmenitiesEdgeNode>>,
+    Fragmentable {
+  node: <T = AmenitiesSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface BarSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface BarSubscriptionPayload
+  extends Promise<BarSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Bar>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = BarPreviousValues>() => T;
+}
+
+export interface BarSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<BarSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = BarSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = BarPreviousValuesSubscription>() => T;
+}
+
+export interface NotificationPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  type?: NOTIFICATION_TYPE;
+  link: String;
+  readDate: DateTimeOutput;
+}
+
+export interface NotificationPreviousValues
+  extends Promise<NotificationPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  type: () => Promise<NOTIFICATION_TYPE>;
+  link: () => Promise<String>;
+  readDate: () => Promise<DateTimeOutput>;
+}
+
+export interface NotificationPreviousValuesSubscription
+  extends Promise<AsyncIterator<NotificationPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<NOTIFICATION_TYPE>>;
+  link: () => Promise<AsyncIterator<String>>;
+  readDate: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface BarPreviousValuesNode {
+  id: ID_Output;
+  bar?: String;
+}
+
+export interface BarPreviousValues
+  extends Promise<BarPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  bar: () => Promise<String>;
+}
+
+export interface BarPreviousValuesSubscription
+  extends Promise<AsyncIterator<BarPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  bar: () => Promise<AsyncIterator<String>>;
+}
+
+export interface ExperienceCategoryEdgeNode {
+  cursor: String;
+}
+
+export interface ExperienceCategoryEdge
+  extends Promise<ExperienceCategoryEdgeNode>,
+    Fragmentable {
+  node: <T = ExperienceCategory>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface ExperienceCategoryEdgeSubscription
+  extends Promise<AsyncIterator<ExperienceCategoryEdgeNode>>,
+    Fragmentable {
+  node: <T = ExperienceCategorySubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface UserConnectionNode {}
+
+export interface UserConnection
+  extends Promise<UserConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<UserEdgeNode>>>() => T;
+  aggregate: <T = AggregateUser>() => T;
+}
+
+export interface UserConnectionSubscription
+  extends Promise<AsyncIterator<UserConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<UserEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateUserSubscription>() => T;
+}
+
+export interface NotificationSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface NotificationSubscriptionPayload
+  extends Promise<NotificationSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Notification>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = NotificationPreviousValues>() => T;
+}
+
+export interface NotificationSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<NotificationSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = NotificationSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = NotificationPreviousValuesSubscription>() => T;
+}
+
+export interface PoliciesSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PoliciesSubscriptionPayload
+  extends Promise<PoliciesSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Policies>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PoliciesPreviousValues>() => T;
+}
+
+export interface PoliciesSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PoliciesSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PoliciesSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PoliciesPreviousValuesSubscription>() => T;
+}
+
+export interface ExperienceEdgeNode {
+  cursor: String;
+}
+
+export interface ExperienceEdge
+  extends Promise<ExperienceEdgeNode>,
+    Fragmentable {
+  node: <T = Experience>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface ExperienceEdgeSubscription
+  extends Promise<AsyncIterator<ExperienceEdgeNode>>,
+    Fragmentable {
+  node: <T = ExperienceSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PoliciesPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+  checkInStartTime: Float;
+  checkInEndTime: Float;
+  checkoutTime: Float;
+}
+
+export interface PoliciesPreviousValues
+  extends Promise<PoliciesPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+  checkInStartTime: () => Promise<Float>;
+  checkInEndTime: () => Promise<Float>;
+  checkoutTime: () => Promise<Float>;
+}
+
+export interface PoliciesPreviousValuesSubscription
+  extends Promise<AsyncIterator<PoliciesPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  checkInStartTime: () => Promise<AsyncIterator<Float>>;
+  checkInEndTime: () => Promise<AsyncIterator<Float>>;
+  checkoutTime: () => Promise<AsyncIterator<Float>>;
+}
+
+export interface AggregatePictureNode {
+  count: Int;
+}
+
+export interface AggregatePicture
+  extends Promise<AggregatePictureNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePictureSubscription
+  extends Promise<AsyncIterator<AggregatePictureNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface NotificationNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  type?: NOTIFICATION_TYPE;
+  link: String;
+  readDate: DateTimeOutput;
+}
+
+export interface Notification extends Promise<NotificationNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  type: () => Promise<NOTIFICATION_TYPE>;
+  user: <T = User>() => T;
+  link: () => Promise<String>;
+  readDate: () => Promise<DateTimeOutput>;
+}
+
+export interface NotificationSubscription
+  extends Promise<AsyncIterator<NotificationNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<NOTIFICATION_TYPE>>;
+  user: <T = UserSubscription>() => T;
+  link: () => Promise<AsyncIterator<String>>;
+  readDate: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface PictureConnectionNode {}
+
+export interface PictureConnection
+  extends Promise<PictureConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PictureEdgeNode>>>() => T;
+  aggregate: <T = AggregatePicture>() => T;
+}
+
+export interface PictureConnectionSubscription
+  extends Promise<AsyncIterator<PictureConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<PictureEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregatePictureSubscription>() => T;
+}
+
+export interface HouseRulesSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface HouseRulesSubscriptionPayload
+  extends Promise<HouseRulesSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = HouseRules>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = HouseRulesPreviousValues>() => T;
+}
+
+export interface HouseRulesSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<HouseRulesSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = HouseRulesSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = HouseRulesPreviousValuesSubscription>() => T;
+}
+
+export interface CityEdgeNode {
+  cursor: String;
+}
+
+export interface CityEdge extends Promise<CityEdgeNode>, Fragmentable {
+  node: <T = City>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface CityEdgeSubscription
+  extends Promise<AsyncIterator<CityEdgeNode>>,
+    Fragmentable {
+  node: <T = CitySubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface HouseRulesPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+  suitableForChildren?: Boolean;
+  suitableForInfants?: Boolean;
+  petsAllowed?: Boolean;
+  smokingAllowed?: Boolean;
+  partiesAndEventsAllowed?: Boolean;
+  additionalRules?: String;
+}
+
+export interface HouseRulesPreviousValues
+  extends Promise<HouseRulesPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+  suitableForChildren: () => Promise<Boolean>;
+  suitableForInfants: () => Promise<Boolean>;
+  petsAllowed: () => Promise<Boolean>;
+  smokingAllowed: () => Promise<Boolean>;
+  partiesAndEventsAllowed: () => Promise<Boolean>;
+  additionalRules: () => Promise<String>;
+}
+
+export interface HouseRulesPreviousValuesSubscription
+  extends Promise<AsyncIterator<HouseRulesPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  suitableForChildren: () => Promise<AsyncIterator<Boolean>>;
+  suitableForInfants: () => Promise<AsyncIterator<Boolean>>;
+  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
+  partiesAndEventsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  additionalRules: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateNeighbourhoodNode {
+  count: Int;
+}
+
+export interface AggregateNeighbourhood
+  extends Promise<AggregateNeighbourhoodNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateNeighbourhoodSubscription
+  extends Promise<AsyncIterator<AggregateNeighbourhoodNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface MessageNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  deliveredAt: DateTimeOutput;
+  readAt: DateTimeOutput;
+}
+
+export interface Message extends Promise<MessageNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  from: <T = User>() => T;
+  to: <T = User>() => T;
+  deliveredAt: () => Promise<DateTimeOutput>;
+  readAt: () => Promise<DateTimeOutput>;
+}
+
+export interface MessageSubscription
+  extends Promise<AsyncIterator<MessageNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  from: <T = UserSubscription>() => T;
+  to: <T = UserSubscription>() => T;
+  deliveredAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  readAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface NeighbourhoodConnectionNode {}
+
+export interface NeighbourhoodConnection
+  extends Promise<NeighbourhoodConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<NeighbourhoodEdgeNode>>>() => T;
+  aggregate: <T = AggregateNeighbourhood>() => T;
+}
+
+export interface NeighbourhoodConnectionSubscription
+  extends Promise<AsyncIterator<NeighbourhoodConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<NeighbourhoodEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregateNeighbourhoodSubscription>() => T;
+}
+
+export interface ViewsSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface ViewsSubscriptionPayload
+  extends Promise<ViewsSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Views>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = ViewsPreviousValues>() => T;
+}
+
+export interface ViewsSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<ViewsSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = ViewsSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = ViewsPreviousValuesSubscription>() => T;
+}
+
+export interface LocationEdgeNode {
+  cursor: String;
+}
+
+export interface LocationEdge extends Promise<LocationEdgeNode>, Fragmentable {
+  node: <T = Location>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface LocationEdgeSubscription
+  extends Promise<AsyncIterator<LocationEdgeNode>>,
+    Fragmentable {
+  node: <T = LocationSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface ViewsPreviousValuesNode {
+  id: ID_Output;
+  lastWeek: Int;
+}
+
+export interface ViewsPreviousValues
+  extends Promise<ViewsPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  lastWeek: () => Promise<Int>;
+}
+
+export interface ViewsPreviousValuesSubscription
+  extends Promise<AsyncIterator<ViewsPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  lastWeek: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface AggregateViewsNode {
+  count: Int;
+}
+
+export interface AggregateViews
+  extends Promise<AggregateViewsNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateViewsSubscription
+  extends Promise<AsyncIterator<AggregateViewsNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface CreditCardInformationNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  cardNumber: String;
+  expiresOnMonth: Int;
+  expiresOnYear: Int;
+  securityCode: String;
+  firstName: String;
+  lastName: String;
+  postalCode: String;
+  country: String;
+}
+
+export interface CreditCardInformation
+  extends Promise<CreditCardInformationNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  cardNumber: () => Promise<String>;
+  expiresOnMonth: () => Promise<Int>;
+  expiresOnYear: () => Promise<Int>;
+  securityCode: () => Promise<String>;
+  firstName: () => Promise<String>;
+  lastName: () => Promise<String>;
+  postalCode: () => Promise<String>;
+  country: () => Promise<String>;
+  paymentAccount: <T = PaymentAccount>() => T;
+}
+
+export interface CreditCardInformationSubscription
+  extends Promise<AsyncIterator<CreditCardInformationNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  cardNumber: () => Promise<AsyncIterator<String>>;
+  expiresOnMonth: () => Promise<AsyncIterator<Int>>;
+  expiresOnYear: () => Promise<AsyncIterator<Int>>;
+  securityCode: () => Promise<AsyncIterator<String>>;
+  firstName: () => Promise<AsyncIterator<String>>;
+  lastName: () => Promise<AsyncIterator<String>>;
+  postalCode: () => Promise<AsyncIterator<String>>;
+  country: () => Promise<AsyncIterator<String>>;
+  paymentAccount: <T = PaymentAccountSubscription>() => T;
+}
+
+export interface ViewsConnectionNode {}
+
+export interface ViewsConnection
+  extends Promise<ViewsConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<ViewsEdgeNode>>>() => T;
+  aggregate: <T = AggregateViews>() => T;
+}
+
+export interface ViewsConnectionSubscription
+  extends Promise<AsyncIterator<ViewsConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<ViewsEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateViewsSubscription>() => T;
+}
+
+export interface LocationSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface LocationSubscriptionPayload
+  extends Promise<LocationSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Location>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = LocationPreviousValues>() => T;
+}
+
+export interface LocationSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<LocationSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = LocationSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = LocationPreviousValuesSubscription>() => T;
+}
+
+export interface HouseRulesEdgeNode {
+  cursor: String;
+}
+
+export interface HouseRulesEdge
+  extends Promise<HouseRulesEdgeNode>,
+    Fragmentable {
+  node: <T = HouseRules>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface HouseRulesEdgeSubscription
+  extends Promise<AsyncIterator<HouseRulesEdgeNode>>,
+    Fragmentable {
+  node: <T = HouseRulesSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface LocationPreviousValuesNode {
+  id: ID_Output;
+  lat: Float;
+  lng: Float;
+  address?: String;
+  directions?: String;
+}
+
+export interface LocationPreviousValues
+  extends Promise<LocationPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  lat: () => Promise<Float>;
+  lng: () => Promise<Float>;
+  address: () => Promise<String>;
+  directions: () => Promise<String>;
+}
+
+export interface LocationPreviousValuesSubscription
+  extends Promise<AsyncIterator<LocationPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  lat: () => Promise<AsyncIterator<Float>>;
+  lng: () => Promise<AsyncIterator<Float>>;
+  address: () => Promise<AsyncIterator<String>>;
+  directions: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregatePoliciesNode {
+  count: Int;
+}
+
+export interface AggregatePolicies
+  extends Promise<AggregatePoliciesNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePoliciesSubscription
+  extends Promise<AsyncIterator<AggregatePoliciesNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PaypalInformationNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  email: String;
+}
+
+export interface PaypalInformation
+  extends Promise<PaypalInformationNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  email: () => Promise<String>;
+  paymentAccount: <T = PaymentAccount>() => T;
+}
+
+export interface PaypalInformationSubscription
+  extends Promise<AsyncIterator<PaypalInformationNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  email: () => Promise<AsyncIterator<String>>;
+  paymentAccount: <T = PaymentAccountSubscription>() => T;
+}
+
+export interface PoliciesConnectionNode {}
+
+export interface PoliciesConnection
+  extends Promise<PoliciesConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PoliciesEdgeNode>>>() => T;
+  aggregate: <T = AggregatePolicies>() => T;
+}
+
+export interface PoliciesConnectionSubscription
+  extends Promise<AsyncIterator<PoliciesConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<PoliciesEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregatePoliciesSubscription>() => T;
+}
+
+export interface NeighbourhoodSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface NeighbourhoodSubscriptionPayload
+  extends Promise<NeighbourhoodSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Neighbourhood>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = NeighbourhoodPreviousValues>() => T;
+}
+
+export interface NeighbourhoodSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<NeighbourhoodSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = NeighbourhoodSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = NeighbourhoodPreviousValuesSubscription>() => T;
+}
+
+export interface BarEdgeNode {
+  cursor: String;
+}
+
+export interface BarEdge extends Promise<BarEdgeNode>, Fragmentable {
+  node: <T = Bar>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface BarEdgeSubscription
+  extends Promise<AsyncIterator<BarEdgeNode>>,
+    Fragmentable {
+  node: <T = BarSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface NeighbourhoodPreviousValuesNode {
+  id: ID_Output;
+  name: String;
+  slug: String;
+  featured: Boolean;
+  popularity: Int;
+}
+
+export interface NeighbourhoodPreviousValues
+  extends Promise<NeighbourhoodPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+  slug: () => Promise<String>;
+  featured: () => Promise<Boolean>;
+  popularity: () => Promise<Int>;
+}
+
+export interface NeighbourhoodPreviousValuesSubscription
+  extends Promise<AsyncIterator<NeighbourhoodPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  name: () => Promise<AsyncIterator<String>>;
+  slug: () => Promise<AsyncIterator<String>>;
+  featured: () => Promise<AsyncIterator<Boolean>>;
+  popularity: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface BarNode {
+  id: ID_Output;
+  bar?: String;
+}
+
+export interface Bar extends Promise<BarNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  bar: () => Promise<String>;
+}
+
+export interface BarSubscription
+  extends Promise<AsyncIterator<BarNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  bar: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PaymentAccountNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  type?: PAYMENT_PROVIDER;
+}
+
+export interface PaymentAccount
+  extends Promise<PaymentAccountNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  type: () => Promise<PAYMENT_PROVIDER>;
+  user: <T = User>() => T;
+  payments: <T = Promise<Array<PaymentNode>>>(
+    args?: {
+      where?: PaymentWhereInput;
+      orderBy?: PaymentOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  paypal: <T = PaypalInformation>() => T;
+  creditcard: <T = CreditCardInformation>() => T;
+}
+
+export interface PaymentAccountSubscription
+  extends Promise<AsyncIterator<PaymentAccountNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<PAYMENT_PROVIDER>>;
+  user: <T = UserSubscription>() => T;
+  payments: <T = Promise<AsyncIterator<Array<PaymentSubscription>>>>(
+    args?: {
+      where?: PaymentWhereInput;
+      orderBy?: PaymentOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  paypal: <T = PaypalInformationSubscription>() => T;
+  creditcard: <T = CreditCardInformationSubscription>() => T;
+}
+
+export interface GuestRequirementsEdgeNode {
+  cursor: String;
+}
+
+export interface GuestRequirementsEdge
+  extends Promise<GuestRequirementsEdgeNode>,
+    Fragmentable {
+  node: <T = GuestRequirements>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface GuestRequirementsEdgeSubscription
+  extends Promise<AsyncIterator<GuestRequirementsEdgeNode>>,
+    Fragmentable {
+  node: <T = GuestRequirementsSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface CitySubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface CitySubscriptionPayload
+  extends Promise<CitySubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = City>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = CityPreviousValues>() => T;
+}
+
+export interface CitySubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<CitySubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = CitySubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = CityPreviousValuesSubscription>() => T;
+}
+
+export interface AggregatePricingNode {
+  count: Int;
+}
+
+export interface AggregatePricing
+  extends Promise<AggregatePricingNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePricingSubscription
+  extends Promise<AsyncIterator<AggregatePricingNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface CityPreviousValuesNode {
+  id: ID_Output;
+  name: String;
+}
+
+export interface CityPreviousValues
+  extends Promise<CityPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+}
+
+export interface CityPreviousValuesSubscription
+  extends Promise<AsyncIterator<CityPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  name: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateNotificationNode {
+  count: Int;
+}
+
+export interface AggregateNotification
+  extends Promise<AggregateNotificationNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateNotificationSubscription
+  extends Promise<AsyncIterator<AggregateNotificationNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PaymentNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  serviceFee: Float;
+  placePrice: Float;
+  totalPrice: Float;
+}
+
+export interface Payment extends Promise<PaymentNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  serviceFee: () => Promise<Float>;
+  placePrice: () => Promise<Float>;
+  totalPrice: () => Promise<Float>;
+  booking: <T = Booking>() => T;
+  paymentMethod: <T = PaymentAccount>() => T;
+}
+
+export interface PaymentSubscription
+  extends Promise<AsyncIterator<PaymentNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  serviceFee: () => Promise<AsyncIterator<Float>>;
+  placePrice: () => Promise<AsyncIterator<Float>>;
+  totalPrice: () => Promise<AsyncIterator<Float>>;
+  booking: <T = BookingSubscription>() => T;
+  paymentMethod: <T = PaymentAccountSubscription>() => T;
+}
+
+export interface MessageEdgeNode {
+  cursor: String;
+}
+
+export interface MessageEdge extends Promise<MessageEdgeNode>, Fragmentable {
+  node: <T = Message>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface MessageEdgeSubscription
+  extends Promise<AsyncIterator<MessageEdgeNode>>,
+    Fragmentable {
+  node: <T = MessageSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PictureSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PictureSubscriptionPayload
+  extends Promise<PictureSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Picture>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PicturePreviousValues>() => T;
+}
+
+export interface PictureSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PictureSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PictureSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PicturePreviousValuesSubscription>() => T;
+}
+
+export interface CreditCardInformationConnectionNode {}
+
+export interface CreditCardInformationConnection
+  extends Promise<CreditCardInformationConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<CreditCardInformationEdgeNode>>>() => T;
+  aggregate: <T = AggregateCreditCardInformation>() => T;
+}
+
+export interface CreditCardInformationConnectionSubscription
+  extends Promise<AsyncIterator<CreditCardInformationConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<CreditCardInformationEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregateCreditCardInformationSubscription>() => T;
+}
+
+export interface PicturePreviousValuesNode {
+  id: ID_Output;
+  url: String;
+}
+
+export interface PicturePreviousValues
+  extends Promise<PicturePreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  url: () => Promise<String>;
+}
+
+export interface PicturePreviousValuesSubscription
+  extends Promise<AsyncIterator<PicturePreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  url: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PaypalInformationConnectionNode {}
+
+export interface PaypalInformationConnection
+  extends Promise<PaypalInformationConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PaypalInformationEdgeNode>>>() => T;
+  aggregate: <T = AggregatePaypalInformation>() => T;
+}
+
+export interface PaypalInformationConnectionSubscription
+  extends Promise<AsyncIterator<PaypalInformationConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<PaypalInformationEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregatePaypalInformationSubscription>() => T;
+}
+
+export interface BookingNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  startDate: DateTimeOutput;
+  endDate: DateTimeOutput;
+}
+
+export interface Booking extends Promise<BookingNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  bookee: <T = User>() => T;
+  place: <T = Place>() => T;
+  startDate: () => Promise<DateTimeOutput>;
+  endDate: () => Promise<DateTimeOutput>;
+  payment: <T = Payment>() => T;
+}
+
+export interface BookingSubscription
+  extends Promise<AsyncIterator<BookingNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  bookee: <T = UserSubscription>() => T;
+  place: <T = PlaceSubscription>() => T;
+  startDate: () => Promise<AsyncIterator<DateTimeOutput>>;
+  endDate: () => Promise<AsyncIterator<DateTimeOutput>>;
+  payment: <T = PaymentSubscription>() => T;
+}
+
+export interface PaymentAccountConnectionNode {}
+
+export interface PaymentAccountConnection
+  extends Promise<PaymentAccountConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<PaymentAccountEdgeNode>>>() => T;
+  aggregate: <T = AggregatePaymentAccount>() => T;
+}
+
+export interface PaymentAccountConnectionSubscription
+  extends Promise<AsyncIterator<PaymentAccountConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<PaymentAccountEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregatePaymentAccountSubscription>() => T;
+}
+
+export interface ExperienceSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface ExperienceSubscriptionPayload
+  extends Promise<ExperienceSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Experience>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = ExperiencePreviousValues>() => T;
+}
+
+export interface ExperienceSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<ExperienceSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = ExperienceSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = ExperiencePreviousValuesSubscription>() => T;
+}
+
+export interface AggregateBookingNode {
+  count: Int;
+}
+
+export interface AggregateBooking
+  extends Promise<AggregateBookingNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateBookingSubscription
+  extends Promise<AsyncIterator<AggregateBookingNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface ExperiencePreviousValuesNode {
+  id: ID_Output;
+  title: String;
+  pricePerPerson: Int;
+  popularity: Int;
+}
+
+export interface ExperiencePreviousValues
+  extends Promise<ExperiencePreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  title: () => Promise<String>;
+  pricePerPerson: () => Promise<Int>;
+  popularity: () => Promise<Int>;
+}
+
+export interface ExperiencePreviousValuesSubscription
+  extends Promise<AsyncIterator<ExperiencePreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  title: () => Promise<AsyncIterator<String>>;
+  pricePerPerson: () => Promise<AsyncIterator<Int>>;
+  popularity: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface ReviewEdgeNode {
+  cursor: String;
+}
+
+export interface ReviewEdge extends Promise<ReviewEdgeNode>, Fragmentable {
+  node: <T = Review>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface ReviewEdgeSubscription
+  extends Promise<AsyncIterator<ReviewEdgeNode>>,
+    Fragmentable {
+  node: <T = ReviewSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface HouseRulesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+  suitableForChildren?: Boolean;
+  suitableForInfants?: Boolean;
+  petsAllowed?: Boolean;
+  smokingAllowed?: Boolean;
+  partiesAndEventsAllowed?: Boolean;
+  additionalRules?: String;
+}
+
+export interface HouseRules extends Promise<HouseRulesNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+  suitableForChildren: () => Promise<Boolean>;
+  suitableForInfants: () => Promise<Boolean>;
+  petsAllowed: () => Promise<Boolean>;
+  smokingAllowed: () => Promise<Boolean>;
+  partiesAndEventsAllowed: () => Promise<Boolean>;
+  additionalRules: () => Promise<String>;
+}
+
+export interface HouseRulesSubscription
+  extends Promise<AsyncIterator<HouseRulesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  suitableForChildren: () => Promise<AsyncIterator<Boolean>>;
+  suitableForInfants: () => Promise<AsyncIterator<Boolean>>;
+  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
+  partiesAndEventsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  additionalRules: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AmenitiesConnectionNode {}
+
+export interface AmenitiesConnection
+  extends Promise<AmenitiesConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<AmenitiesEdgeNode>>>() => T;
+  aggregate: <T = AggregateAmenities>() => T;
+}
+
+export interface AmenitiesConnectionSubscription
+  extends Promise<AsyncIterator<AmenitiesConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<AmenitiesEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateAmenitiesSubscription>() => T;
+}
+
+export interface ExperienceCategorySubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface ExperienceCategorySubscriptionPayload
+  extends Promise<ExperienceCategorySubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = ExperienceCategory>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = ExperienceCategoryPreviousValues>() => T;
+}
+
+export interface ExperienceCategorySubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<ExperienceCategorySubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = ExperienceCategorySubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = ExperienceCategoryPreviousValuesSubscription>() => T;
+}
+
+export interface ExperienceCategoryConnectionNode {}
+
+export interface ExperienceCategoryConnection
+  extends Promise<ExperienceCategoryConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<ExperienceCategoryEdgeNode>>>() => T;
+  aggregate: <T = AggregateExperienceCategory>() => T;
+}
+
+export interface ExperienceCategoryConnectionSubscription
+  extends Promise<AsyncIterator<ExperienceCategoryConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<ExperienceCategoryEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregateExperienceCategorySubscription>() => T;
+}
+
+export interface ExperienceCategoryPreviousValuesNode {
+  id: ID_Output;
+  mainColor: String;
+  name: String;
+}
+
+export interface ExperienceCategoryPreviousValues
+  extends Promise<ExperienceCategoryPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  mainColor: () => Promise<String>;
+  name: () => Promise<String>;
+}
+
+export interface ExperienceCategoryPreviousValuesSubscription
+  extends Promise<AsyncIterator<ExperienceCategoryPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  mainColor: () => Promise<AsyncIterator<String>>;
+  name: () => Promise<AsyncIterator<String>>;
+}
+
+export interface ExperienceConnectionNode {}
+
+export interface ExperienceConnection
+  extends Promise<ExperienceConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<ExperienceEdgeNode>>>() => T;
+  aggregate: <T = AggregateExperience>() => T;
+}
+
+export interface ExperienceConnectionSubscription
+  extends Promise<AsyncIterator<ExperienceConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<ExperienceEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateExperienceSubscription>() => T;
+}
+
+export interface PoliciesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+  checkInStartTime: Float;
+  checkInEndTime: Float;
+  checkoutTime: Float;
+}
+
+export interface Policies extends Promise<PoliciesNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+  checkInStartTime: () => Promise<Float>;
+  checkInEndTime: () => Promise<Float>;
+  checkoutTime: () => Promise<Float>;
+  place: <T = Place>() => T;
+}
+
+export interface PoliciesSubscription
+  extends Promise<AsyncIterator<PoliciesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  checkInStartTime: () => Promise<AsyncIterator<Float>>;
+  checkInEndTime: () => Promise<AsyncIterator<Float>>;
+  checkoutTime: () => Promise<AsyncIterator<Float>>;
+  place: <T = PlaceSubscription>() => T;
+}
+
+export interface AggregateCityNode {
+  count: Int;
+}
+
+export interface AggregateCity
+  extends Promise<AggregateCityNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateCitySubscription
+  extends Promise<AsyncIterator<AggregateCityNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface AmenitiesSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface AmenitiesSubscriptionPayload
+  extends Promise<AmenitiesSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Amenities>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = AmenitiesPreviousValues>() => T;
+}
+
+export interface AmenitiesSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<AmenitiesSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = AmenitiesSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = AmenitiesPreviousValuesSubscription>() => T;
+}
+
+export interface NeighbourhoodEdgeNode {
+  cursor: String;
+}
+
+export interface NeighbourhoodEdge
+  extends Promise<NeighbourhoodEdgeNode>,
+    Fragmentable {
+  node: <T = Neighbourhood>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface NeighbourhoodEdgeSubscription
+  extends Promise<AsyncIterator<NeighbourhoodEdgeNode>>,
+    Fragmentable {
+  node: <T = NeighbourhoodSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AmenitiesPreviousValuesNode {
+  id: ID_Output;
+  elevator: Boolean;
+  petsAllowed: Boolean;
+  internet: Boolean;
+  kitchen: Boolean;
+  wirelessInternet: Boolean;
+  familyKidFriendly: Boolean;
+  freeParkingOnPremises: Boolean;
+  hotTub: Boolean;
+  pool: Boolean;
+  smokingAllowed: Boolean;
+  wheelchairAccessible: Boolean;
+  breakfast: Boolean;
+  cableTv: Boolean;
+  suitableForEvents: Boolean;
+  dryer: Boolean;
+  washer: Boolean;
+  indoorFireplace: Boolean;
+  tv: Boolean;
+  heating: Boolean;
+  hangers: Boolean;
+  iron: Boolean;
+  hairDryer: Boolean;
+  doorman: Boolean;
+  paidParkingOffPremises: Boolean;
+  freeParkingOnStreet: Boolean;
+  gym: Boolean;
+  airConditioning: Boolean;
+  shampoo: Boolean;
+  essentials: Boolean;
+  laptopFriendlyWorkspace: Boolean;
+  privateEntrance: Boolean;
+  buzzerWirelessIntercom: Boolean;
+  babyBath: Boolean;
+  babyMonitor: Boolean;
+  babysitterRecommendations: Boolean;
+  bathtub: Boolean;
+  changingTable: Boolean;
+  childrensBooksAndToys: Boolean;
+  childrensDinnerware: Boolean;
+  crib: Boolean;
+}
+
+export interface AmenitiesPreviousValues
+  extends Promise<AmenitiesPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  elevator: () => Promise<Boolean>;
+  petsAllowed: () => Promise<Boolean>;
+  internet: () => Promise<Boolean>;
+  kitchen: () => Promise<Boolean>;
+  wirelessInternet: () => Promise<Boolean>;
+  familyKidFriendly: () => Promise<Boolean>;
+  freeParkingOnPremises: () => Promise<Boolean>;
+  hotTub: () => Promise<Boolean>;
+  pool: () => Promise<Boolean>;
+  smokingAllowed: () => Promise<Boolean>;
+  wheelchairAccessible: () => Promise<Boolean>;
+  breakfast: () => Promise<Boolean>;
+  cableTv: () => Promise<Boolean>;
+  suitableForEvents: () => Promise<Boolean>;
+  dryer: () => Promise<Boolean>;
+  washer: () => Promise<Boolean>;
+  indoorFireplace: () => Promise<Boolean>;
+  tv: () => Promise<Boolean>;
+  heating: () => Promise<Boolean>;
+  hangers: () => Promise<Boolean>;
+  iron: () => Promise<Boolean>;
+  hairDryer: () => Promise<Boolean>;
+  doorman: () => Promise<Boolean>;
+  paidParkingOffPremises: () => Promise<Boolean>;
+  freeParkingOnStreet: () => Promise<Boolean>;
+  gym: () => Promise<Boolean>;
+  airConditioning: () => Promise<Boolean>;
+  shampoo: () => Promise<Boolean>;
+  essentials: () => Promise<Boolean>;
+  laptopFriendlyWorkspace: () => Promise<Boolean>;
+  privateEntrance: () => Promise<Boolean>;
+  buzzerWirelessIntercom: () => Promise<Boolean>;
+  babyBath: () => Promise<Boolean>;
+  babyMonitor: () => Promise<Boolean>;
+  babysitterRecommendations: () => Promise<Boolean>;
+  bathtub: () => Promise<Boolean>;
+  changingTable: () => Promise<Boolean>;
+  childrensBooksAndToys: () => Promise<Boolean>;
+  childrensDinnerware: () => Promise<Boolean>;
+  crib: () => Promise<Boolean>;
+}
+
+export interface AmenitiesPreviousValuesSubscription
+  extends Promise<AsyncIterator<AmenitiesPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  elevator: () => Promise<AsyncIterator<Boolean>>;
+  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  internet: () => Promise<AsyncIterator<Boolean>>;
+  kitchen: () => Promise<AsyncIterator<Boolean>>;
+  wirelessInternet: () => Promise<AsyncIterator<Boolean>>;
+  familyKidFriendly: () => Promise<AsyncIterator<Boolean>>;
+  freeParkingOnPremises: () => Promise<AsyncIterator<Boolean>>;
+  hotTub: () => Promise<AsyncIterator<Boolean>>;
+  pool: () => Promise<AsyncIterator<Boolean>>;
+  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
+  wheelchairAccessible: () => Promise<AsyncIterator<Boolean>>;
+  breakfast: () => Promise<AsyncIterator<Boolean>>;
+  cableTv: () => Promise<AsyncIterator<Boolean>>;
+  suitableForEvents: () => Promise<AsyncIterator<Boolean>>;
+  dryer: () => Promise<AsyncIterator<Boolean>>;
+  washer: () => Promise<AsyncIterator<Boolean>>;
+  indoorFireplace: () => Promise<AsyncIterator<Boolean>>;
+  tv: () => Promise<AsyncIterator<Boolean>>;
+  heating: () => Promise<AsyncIterator<Boolean>>;
+  hangers: () => Promise<AsyncIterator<Boolean>>;
+  iron: () => Promise<AsyncIterator<Boolean>>;
+  hairDryer: () => Promise<AsyncIterator<Boolean>>;
+  doorman: () => Promise<AsyncIterator<Boolean>>;
+  paidParkingOffPremises: () => Promise<AsyncIterator<Boolean>>;
+  freeParkingOnStreet: () => Promise<AsyncIterator<Boolean>>;
+  gym: () => Promise<AsyncIterator<Boolean>>;
+  airConditioning: () => Promise<AsyncIterator<Boolean>>;
+  shampoo: () => Promise<AsyncIterator<Boolean>>;
+  essentials: () => Promise<AsyncIterator<Boolean>>;
+  laptopFriendlyWorkspace: () => Promise<AsyncIterator<Boolean>>;
+  privateEntrance: () => Promise<AsyncIterator<Boolean>>;
+  buzzerWirelessIntercom: () => Promise<AsyncIterator<Boolean>>;
+  babyBath: () => Promise<AsyncIterator<Boolean>>;
+  babyMonitor: () => Promise<AsyncIterator<Boolean>>;
+  babysitterRecommendations: () => Promise<AsyncIterator<Boolean>>;
+  bathtub: () => Promise<AsyncIterator<Boolean>>;
+  changingTable: () => Promise<AsyncIterator<Boolean>>;
+  childrensBooksAndToys: () => Promise<AsyncIterator<Boolean>>;
+  childrensDinnerware: () => Promise<AsyncIterator<Boolean>>;
+  crib: () => Promise<AsyncIterator<Boolean>>;
+}
+
+export interface LocationConnectionNode {}
+
+export interface LocationConnection
+  extends Promise<LocationConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<LocationEdgeNode>>>() => T;
+  aggregate: <T = AggregateLocation>() => T;
+}
+
+export interface LocationConnectionSubscription
+  extends Promise<AsyncIterator<LocationConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<LocationEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateLocationSubscription>() => T;
+}
+
+export interface GuestRequirementsNode {
+  id: ID_Output;
+  govIssuedId: Boolean;
+  recommendationsFromOtherHosts: Boolean;
+  guestTripInformation: Boolean;
+}
+
+export interface GuestRequirements
+  extends Promise<GuestRequirementsNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  govIssuedId: () => Promise<Boolean>;
+  recommendationsFromOtherHosts: () => Promise<Boolean>;
+  guestTripInformation: () => Promise<Boolean>;
+  place: <T = Place>() => T;
+}
+
+export interface GuestRequirementsSubscription
+  extends Promise<AsyncIterator<GuestRequirementsNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  govIssuedId: () => Promise<AsyncIterator<Boolean>>;
+  recommendationsFromOtherHosts: () => Promise<AsyncIterator<Boolean>>;
+  guestTripInformation: () => Promise<AsyncIterator<Boolean>>;
+  place: <T = PlaceSubscription>() => T;
+}
+
+export interface AggregateHouseRulesNode {
+  count: Int;
+}
+
+export interface AggregateHouseRules
+  extends Promise<AggregateHouseRulesNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateHouseRulesSubscription
+  extends Promise<AsyncIterator<AggregateHouseRulesNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface ReviewSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface ReviewSubscriptionPayload
+  extends Promise<ReviewSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Review>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = ReviewPreviousValues>() => T;
+}
+
+export interface ReviewSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<ReviewSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = ReviewSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = ReviewPreviousValuesSubscription>() => T;
+}
+
+export interface PoliciesEdgeNode {
+  cursor: String;
+}
+
+export interface PoliciesEdge extends Promise<PoliciesEdgeNode>, Fragmentable {
+  node: <T = Policies>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PoliciesEdgeSubscription
+  extends Promise<AsyncIterator<PoliciesEdgeNode>>,
+    Fragmentable {
+  node: <T = PoliciesSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface ReviewPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  text: String;
+  stars: Int;
+  accuracy: Int;
+  location: Int;
+  checkIn: Int;
+  value: Int;
+  cleanliness: Int;
+  communication: Int;
+}
+
+export interface ReviewPreviousValues
+  extends Promise<ReviewPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  text: () => Promise<String>;
+  stars: () => Promise<Int>;
+  accuracy: () => Promise<Int>;
+  location: () => Promise<Int>;
+  checkIn: () => Promise<Int>;
+  value: () => Promise<Int>;
+  cleanliness: () => Promise<Int>;
+  communication: () => Promise<Int>;
+}
+
+export interface ReviewPreviousValuesSubscription
+  extends Promise<AsyncIterator<ReviewPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  text: () => Promise<AsyncIterator<String>>;
+  stars: () => Promise<AsyncIterator<Int>>;
+  accuracy: () => Promise<AsyncIterator<Int>>;
+  location: () => Promise<AsyncIterator<Int>>;
+  checkIn: () => Promise<AsyncIterator<Int>>;
+  value: () => Promise<AsyncIterator<Int>>;
+  cleanliness: () => Promise<AsyncIterator<Int>>;
+  communication: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface BarConnectionNode {}
+
+export interface BarConnection
+  extends Promise<BarConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<BarEdgeNode>>>() => T;
+  aggregate: <T = AggregateBar>() => T;
+}
+
+export interface BarConnectionSubscription
+  extends Promise<AsyncIterator<BarConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<BarEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateBarSubscription>() => T;
+}
+
+export interface ViewsNode {
+  id: ID_Output;
+  lastWeek: Int;
+}
+
+export interface Views extends Promise<ViewsNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  lastWeek: () => Promise<Int>;
+  place: <T = Place>() => T;
+}
+
+export interface ViewsSubscription
+  extends Promise<AsyncIterator<ViewsNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  lastWeek: () => Promise<AsyncIterator<Int>>;
+  place: <T = PlaceSubscription>() => T;
+}
+
+export interface GuestRequirementsConnectionNode {}
+
+export interface GuestRequirementsConnection
+  extends Promise<GuestRequirementsConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<GuestRequirementsEdgeNode>>>() => T;
+  aggregate: <T = AggregateGuestRequirements>() => T;
+}
+
+export interface GuestRequirementsConnectionSubscription
+  extends Promise<AsyncIterator<GuestRequirementsConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<GuestRequirementsEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregateGuestRequirementsSubscription>() => T;
+}
+
+export interface BookingSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface BookingSubscriptionPayload
+  extends Promise<BookingSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Booking>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = BookingPreviousValues>() => T;
+}
+
+export interface BookingSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<BookingSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = BookingSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = BookingPreviousValuesSubscription>() => T;
+}
+
+export interface NotificationConnectionNode {}
+
+export interface NotificationConnection
+  extends Promise<NotificationConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<NotificationEdgeNode>>>() => T;
+  aggregate: <T = AggregateNotification>() => T;
+}
+
+export interface NotificationConnectionSubscription
+  extends Promise<AsyncIterator<NotificationConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <
+    T = Promise<AsyncIterator<Array<NotificationEdgeSubscription>>>
+  >() => T;
+  aggregate: <T = AggregateNotificationSubscription>() => T;
+}
+
 export interface BookingPreviousValuesNode {
   id: ID_Output;
   createdAt: DateTimeOutput;
@@ -9700,22 +9807,547 @@ export interface BookingPreviousValuesSubscription
   endDate: () => Promise<AsyncIterator<DateTimeOutput>>;
 }
 
-export interface CreditCardInformationEdgeNode {
+export interface AggregatePaypalInformationNode {
+  count: Int;
+}
+
+export interface AggregatePaypalInformation
+  extends Promise<AggregatePaypalInformationNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePaypalInformationSubscription
+  extends Promise<AsyncIterator<AggregatePaypalInformationNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PricingNode {
+  id: ID_Output;
+  monthlyDiscount?: Int;
+  weeklyDiscount?: Int;
+  perNight: Int;
+  smartPricing: Boolean;
+  basePrice: Int;
+  averageWeekly: Int;
+  averageMonthly: Int;
+  cleaningFee?: Int;
+  securityDeposit?: Int;
+  extraGuests?: Int;
+  weekendPricing?: Int;
+  currency?: CURRENCY;
+}
+
+export interface Pricing extends Promise<PricingNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  place: <T = Place>() => T;
+  monthlyDiscount: () => Promise<Int>;
+  weeklyDiscount: () => Promise<Int>;
+  perNight: () => Promise<Int>;
+  smartPricing: () => Promise<Boolean>;
+  basePrice: () => Promise<Int>;
+  averageWeekly: () => Promise<Int>;
+  averageMonthly: () => Promise<Int>;
+  cleaningFee: () => Promise<Int>;
+  securityDeposit: () => Promise<Int>;
+  extraGuests: () => Promise<Int>;
+  weekendPricing: () => Promise<Int>;
+  currency: () => Promise<CURRENCY>;
+}
+
+export interface PricingSubscription
+  extends Promise<AsyncIterator<PricingNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  place: <T = PlaceSubscription>() => T;
+  monthlyDiscount: () => Promise<AsyncIterator<Int>>;
+  weeklyDiscount: () => Promise<AsyncIterator<Int>>;
+  perNight: () => Promise<AsyncIterator<Int>>;
+  smartPricing: () => Promise<AsyncIterator<Boolean>>;
+  basePrice: () => Promise<AsyncIterator<Int>>;
+  averageWeekly: () => Promise<AsyncIterator<Int>>;
+  averageMonthly: () => Promise<AsyncIterator<Int>>;
+  cleaningFee: () => Promise<AsyncIterator<Int>>;
+  securityDeposit: () => Promise<AsyncIterator<Int>>;
+  extraGuests: () => Promise<AsyncIterator<Int>>;
+  weekendPricing: () => Promise<AsyncIterator<Int>>;
+  currency: () => Promise<AsyncIterator<CURRENCY>>;
+}
+
+export interface PaymentEdgeNode {
   cursor: String;
 }
 
-export interface CreditCardInformationEdge
-  extends Promise<CreditCardInformationEdgeNode>,
-    Fragmentable {
-  node: <T = CreditCardInformation>() => T;
+export interface PaymentEdge extends Promise<PaymentEdgeNode>, Fragmentable {
+  node: <T = Payment>() => T;
   cursor: () => Promise<String>;
 }
 
-export interface CreditCardInformationEdgeSubscription
-  extends Promise<AsyncIterator<CreditCardInformationEdgeNode>>,
+export interface PaymentEdgeSubscription
+  extends Promise<AsyncIterator<PaymentEdgeNode>>,
     Fragmentable {
-  node: <T = CreditCardInformationSubscription>() => T;
+  node: <T = PaymentSubscription>() => T;
   cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PaymentSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PaymentSubscriptionPayload
+  extends Promise<PaymentSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = Payment>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PaymentPreviousValues>() => T;
+}
+
+export interface PaymentSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PaymentSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PaymentSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PaymentPreviousValuesSubscription>() => T;
+}
+
+export interface AggregateAmenitiesNode {
+  count: Int;
+}
+
+export interface AggregateAmenities
+  extends Promise<AggregateAmenitiesNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateAmenitiesSubscription
+  extends Promise<AsyncIterator<AggregateAmenitiesNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PaymentPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  serviceFee: Float;
+  placePrice: Float;
+  totalPrice: Float;
+}
+
+export interface PaymentPreviousValues
+  extends Promise<PaymentPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  serviceFee: () => Promise<Float>;
+  placePrice: () => Promise<Float>;
+  totalPrice: () => Promise<Float>;
+}
+
+export interface PaymentPreviousValuesSubscription
+  extends Promise<AsyncIterator<PaymentPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  serviceFee: () => Promise<AsyncIterator<Float>>;
+  placePrice: () => Promise<AsyncIterator<Float>>;
+  totalPrice: () => Promise<AsyncIterator<Float>>;
+}
+
+export interface AggregateExperienceNode {
+  count: Int;
+}
+
+export interface AggregateExperience
+  extends Promise<AggregateExperienceNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateExperienceSubscription
+  extends Promise<AsyncIterator<AggregateExperienceNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface AmenitiesNode {
+  id: ID_Output;
+  elevator: Boolean;
+  petsAllowed: Boolean;
+  internet: Boolean;
+  kitchen: Boolean;
+  wirelessInternet: Boolean;
+  familyKidFriendly: Boolean;
+  freeParkingOnPremises: Boolean;
+  hotTub: Boolean;
+  pool: Boolean;
+  smokingAllowed: Boolean;
+  wheelchairAccessible: Boolean;
+  breakfast: Boolean;
+  cableTv: Boolean;
+  suitableForEvents: Boolean;
+  dryer: Boolean;
+  washer: Boolean;
+  indoorFireplace: Boolean;
+  tv: Boolean;
+  heating: Boolean;
+  hangers: Boolean;
+  iron: Boolean;
+  hairDryer: Boolean;
+  doorman: Boolean;
+  paidParkingOffPremises: Boolean;
+  freeParkingOnStreet: Boolean;
+  gym: Boolean;
+  airConditioning: Boolean;
+  shampoo: Boolean;
+  essentials: Boolean;
+  laptopFriendlyWorkspace: Boolean;
+  privateEntrance: Boolean;
+  buzzerWirelessIntercom: Boolean;
+  babyBath: Boolean;
+  babyMonitor: Boolean;
+  babysitterRecommendations: Boolean;
+  bathtub: Boolean;
+  changingTable: Boolean;
+  childrensBooksAndToys: Boolean;
+  childrensDinnerware: Boolean;
+  crib: Boolean;
+}
+
+export interface Amenities extends Promise<AmenitiesNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  place: <T = Place>() => T;
+  elevator: () => Promise<Boolean>;
+  petsAllowed: () => Promise<Boolean>;
+  internet: () => Promise<Boolean>;
+  kitchen: () => Promise<Boolean>;
+  wirelessInternet: () => Promise<Boolean>;
+  familyKidFriendly: () => Promise<Boolean>;
+  freeParkingOnPremises: () => Promise<Boolean>;
+  hotTub: () => Promise<Boolean>;
+  pool: () => Promise<Boolean>;
+  smokingAllowed: () => Promise<Boolean>;
+  wheelchairAccessible: () => Promise<Boolean>;
+  breakfast: () => Promise<Boolean>;
+  cableTv: () => Promise<Boolean>;
+  suitableForEvents: () => Promise<Boolean>;
+  dryer: () => Promise<Boolean>;
+  washer: () => Promise<Boolean>;
+  indoorFireplace: () => Promise<Boolean>;
+  tv: () => Promise<Boolean>;
+  heating: () => Promise<Boolean>;
+  hangers: () => Promise<Boolean>;
+  iron: () => Promise<Boolean>;
+  hairDryer: () => Promise<Boolean>;
+  doorman: () => Promise<Boolean>;
+  paidParkingOffPremises: () => Promise<Boolean>;
+  freeParkingOnStreet: () => Promise<Boolean>;
+  gym: () => Promise<Boolean>;
+  airConditioning: () => Promise<Boolean>;
+  shampoo: () => Promise<Boolean>;
+  essentials: () => Promise<Boolean>;
+  laptopFriendlyWorkspace: () => Promise<Boolean>;
+  privateEntrance: () => Promise<Boolean>;
+  buzzerWirelessIntercom: () => Promise<Boolean>;
+  babyBath: () => Promise<Boolean>;
+  babyMonitor: () => Promise<Boolean>;
+  babysitterRecommendations: () => Promise<Boolean>;
+  bathtub: () => Promise<Boolean>;
+  changingTable: () => Promise<Boolean>;
+  childrensBooksAndToys: () => Promise<Boolean>;
+  childrensDinnerware: () => Promise<Boolean>;
+  crib: () => Promise<Boolean>;
+}
+
+export interface AmenitiesSubscription
+  extends Promise<AsyncIterator<AmenitiesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  place: <T = PlaceSubscription>() => T;
+  elevator: () => Promise<AsyncIterator<Boolean>>;
+  petsAllowed: () => Promise<AsyncIterator<Boolean>>;
+  internet: () => Promise<AsyncIterator<Boolean>>;
+  kitchen: () => Promise<AsyncIterator<Boolean>>;
+  wirelessInternet: () => Promise<AsyncIterator<Boolean>>;
+  familyKidFriendly: () => Promise<AsyncIterator<Boolean>>;
+  freeParkingOnPremises: () => Promise<AsyncIterator<Boolean>>;
+  hotTub: () => Promise<AsyncIterator<Boolean>>;
+  pool: () => Promise<AsyncIterator<Boolean>>;
+  smokingAllowed: () => Promise<AsyncIterator<Boolean>>;
+  wheelchairAccessible: () => Promise<AsyncIterator<Boolean>>;
+  breakfast: () => Promise<AsyncIterator<Boolean>>;
+  cableTv: () => Promise<AsyncIterator<Boolean>>;
+  suitableForEvents: () => Promise<AsyncIterator<Boolean>>;
+  dryer: () => Promise<AsyncIterator<Boolean>>;
+  washer: () => Promise<AsyncIterator<Boolean>>;
+  indoorFireplace: () => Promise<AsyncIterator<Boolean>>;
+  tv: () => Promise<AsyncIterator<Boolean>>;
+  heating: () => Promise<AsyncIterator<Boolean>>;
+  hangers: () => Promise<AsyncIterator<Boolean>>;
+  iron: () => Promise<AsyncIterator<Boolean>>;
+  hairDryer: () => Promise<AsyncIterator<Boolean>>;
+  doorman: () => Promise<AsyncIterator<Boolean>>;
+  paidParkingOffPremises: () => Promise<AsyncIterator<Boolean>>;
+  freeParkingOnStreet: () => Promise<AsyncIterator<Boolean>>;
+  gym: () => Promise<AsyncIterator<Boolean>>;
+  airConditioning: () => Promise<AsyncIterator<Boolean>>;
+  shampoo: () => Promise<AsyncIterator<Boolean>>;
+  essentials: () => Promise<AsyncIterator<Boolean>>;
+  laptopFriendlyWorkspace: () => Promise<AsyncIterator<Boolean>>;
+  privateEntrance: () => Promise<AsyncIterator<Boolean>>;
+  buzzerWirelessIntercom: () => Promise<AsyncIterator<Boolean>>;
+  babyBath: () => Promise<AsyncIterator<Boolean>>;
+  babyMonitor: () => Promise<AsyncIterator<Boolean>>;
+  babysitterRecommendations: () => Promise<AsyncIterator<Boolean>>;
+  bathtub: () => Promise<AsyncIterator<Boolean>>;
+  changingTable: () => Promise<AsyncIterator<Boolean>>;
+  childrensBooksAndToys: () => Promise<AsyncIterator<Boolean>>;
+  childrensDinnerware: () => Promise<AsyncIterator<Boolean>>;
+  crib: () => Promise<AsyncIterator<Boolean>>;
+}
+
+export interface CityConnectionNode {}
+
+export interface CityConnection
+  extends Promise<CityConnectionNode>,
+    Fragmentable {
+  pageInfo: <T = PageInfo>() => T;
+  edges: <T = Promise<Array<CityEdgeNode>>>() => T;
+  aggregate: <T = AggregateCity>() => T;
+}
+
+export interface CityConnectionSubscription
+  extends Promise<AsyncIterator<CityConnectionNode>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<CityEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateCitySubscription>() => T;
+}
+
+export interface PaymentAccountSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PaymentAccountSubscriptionPayload
+  extends Promise<PaymentAccountSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = PaymentAccount>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PaymentAccountPreviousValues>() => T;
+}
+
+export interface PaymentAccountSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PaymentAccountSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PaymentAccountSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PaymentAccountPreviousValuesSubscription>() => T;
+}
+
+export interface ViewsEdgeNode {
+  cursor: String;
+}
+
+export interface ViewsEdge extends Promise<ViewsEdgeNode>, Fragmentable {
+  node: <T = Views>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface ViewsEdgeSubscription
+  extends Promise<AsyncIterator<ViewsEdgeNode>>,
+    Fragmentable {
+  node: <T = ViewsSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PaymentAccountPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  type?: PAYMENT_PROVIDER;
+}
+
+export interface PaymentAccountPreviousValues
+  extends Promise<PaymentAccountPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  type: () => Promise<PAYMENT_PROVIDER>;
+}
+
+export interface PaymentAccountPreviousValuesSubscription
+  extends Promise<AsyncIterator<PaymentAccountPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<PAYMENT_PROVIDER>>;
+}
+
+export interface AggregateBarNode {
+  count: Int;
+}
+
+export interface AggregateBar extends Promise<AggregateBarNode>, Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateBarSubscription
+  extends Promise<AsyncIterator<AggregateBarNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface RestaurantNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  title: String;
+  avgPricePerPerson: Int;
+  isCurated: Boolean;
+  slug: String;
+  popularity: Int;
+}
+
+export interface Restaurant extends Promise<RestaurantNode>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  title: () => Promise<String>;
+  avgPricePerPerson: () => Promise<Int>;
+  pictures: <T = Promise<Array<PictureNode>>>(
+    args?: {
+      where?: PictureWhereInput;
+      orderBy?: PictureOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  location: <T = Location>() => T;
+  isCurated: () => Promise<Boolean>;
+  slug: () => Promise<String>;
+  popularity: () => Promise<Int>;
+}
+
+export interface RestaurantSubscription
+  extends Promise<AsyncIterator<RestaurantNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  title: () => Promise<AsyncIterator<String>>;
+  avgPricePerPerson: () => Promise<AsyncIterator<Int>>;
+  pictures: <T = Promise<AsyncIterator<Array<PictureSubscription>>>>(
+    args?: {
+      where?: PictureWhereInput;
+      orderBy?: PictureOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
+  location: <T = LocationSubscription>() => T;
+  isCurated: () => Promise<AsyncIterator<Boolean>>;
+  slug: () => Promise<AsyncIterator<String>>;
+  popularity: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface BatchPayloadNode {
+  count: Long;
+}
+
+export interface BatchPayload extends Promise<BatchPayloadNode>, Fragmentable {
+  count: () => Promise<Long>;
+}
+
+export interface BatchPayloadSubscription
+  extends Promise<AsyncIterator<BatchPayloadNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Long>>;
+}
+
+export interface PaypalInformationSubscriptionPayloadNode {
+  mutation: MutationType;
+  updatedFields?: String[];
+}
+
+export interface PaypalInformationSubscriptionPayload
+  extends Promise<PaypalInformationSubscriptionPayloadNode>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = PaypalInformation>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PaypalInformationPreviousValues>() => T;
+}
+
+export interface PaypalInformationSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PaypalInformationSubscriptionPayloadNode>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PaypalInformationSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PaypalInformationPreviousValuesSubscription>() => T;
+}
+
+export interface AggregatePaymentAccountNode {
+  count: Int;
+}
+
+export interface AggregatePaymentAccount
+  extends Promise<AggregatePaymentAccountNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePaymentAccountSubscription
+  extends Promise<AsyncIterator<AggregatePaymentAccountNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PaypalInformationPreviousValuesNode {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  email: String;
+}
+
+export interface PaypalInformationPreviousValues
+  extends Promise<PaypalInformationPreviousValuesNode>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  email: () => Promise<String>;
+}
+
+export interface PaypalInformationPreviousValuesSubscription
+  extends Promise<AsyncIterator<PaypalInformationPreviousValuesNode>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  email: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateExperienceCategoryNode {
+  count: Int;
+}
+
+export interface AggregateExperienceCategory
+  extends Promise<AggregateExperienceCategoryNode>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateExperienceCategorySubscription
+  extends Promise<AsyncIterator<AggregateExperienceCategoryNode>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface CityNode {
@@ -9759,442 +10391,36 @@ export interface CitySubscription
   ) => T;
 }
 
-export interface PaymentAccountEdgeNode {
-  cursor: String;
-}
-
-export interface PaymentAccountEdge
-  extends Promise<PaymentAccountEdgeNode>,
-    Fragmentable {
-  node: <T = PaymentAccount>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PaymentAccountEdgeSubscription
-  extends Promise<AsyncIterator<PaymentAccountEdgeNode>>,
-    Fragmentable {
-  node: <T = PaymentAccountSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PaymentSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PaymentSubscriptionPayload
-  extends Promise<PaymentSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = Payment>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PaymentPreviousValues>() => T;
-}
-
-export interface PaymentSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PaymentSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PaymentSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PaymentPreviousValuesSubscription>() => T;
-}
-
-export interface AggregateReviewNode {
+export interface AggregateLocationNode {
   count: Int;
 }
 
-export interface AggregateReview
-  extends Promise<AggregateReviewNode>,
+export interface AggregateLocation
+  extends Promise<AggregateLocationNode>,
     Fragmentable {
   count: () => Promise<Int>;
 }
 
-export interface AggregateReviewSubscription
-  extends Promise<AsyncIterator<AggregateReviewNode>>,
+export interface AggregateLocationSubscription
+  extends Promise<AsyncIterator<AggregateLocationNode>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface PaymentPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  serviceFee: Float;
-  placePrice: Float;
-  totalPrice: Float;
-}
-
-export interface PaymentPreviousValues
-  extends Promise<PaymentPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  serviceFee: () => Promise<Float>;
-  placePrice: () => Promise<Float>;
-  totalPrice: () => Promise<Float>;
-}
-
-export interface PaymentPreviousValuesSubscription
-  extends Promise<AsyncIterator<PaymentPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  serviceFee: () => Promise<AsyncIterator<Float>>;
-  placePrice: () => Promise<AsyncIterator<Float>>;
-  totalPrice: () => Promise<AsyncIterator<Float>>;
-}
-
-export interface ExperienceCategoryEdgeNode {
-  cursor: String;
-}
-
-export interface ExperienceCategoryEdge
-  extends Promise<ExperienceCategoryEdgeNode>,
-    Fragmentable {
-  node: <T = ExperienceCategory>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface ExperienceCategoryEdgeSubscription
-  extends Promise<AsyncIterator<ExperienceCategoryEdgeNode>>,
-    Fragmentable {
-  node: <T = ExperienceCategorySubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PictureNode {
-  id: ID_Output;
-  url: String;
-}
-
-export interface Picture extends Promise<PictureNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  url: () => Promise<String>;
-}
-
-export interface PictureSubscription
-  extends Promise<AsyncIterator<PictureNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  url: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PictureConnectionNode {}
-
-export interface PictureConnection
-  extends Promise<PictureConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PictureEdgeNode>>>() => T;
-  aggregate: <T = AggregatePicture>() => T;
-}
-
-export interface PictureConnectionSubscription
-  extends Promise<AsyncIterator<PictureConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<PictureEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregatePictureSubscription>() => T;
-}
-
-export interface PaymentAccountSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PaymentAccountSubscriptionPayload
-  extends Promise<PaymentAccountSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = PaymentAccount>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PaymentAccountPreviousValues>() => T;
-}
-
-export interface PaymentAccountSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PaymentAccountSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PaymentAccountSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PaymentAccountPreviousValuesSubscription>() => T;
-}
-
-export interface LocationEdgeNode {
-  cursor: String;
-}
-
-export interface LocationEdge extends Promise<LocationEdgeNode>, Fragmentable {
-  node: <T = Location>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface LocationEdgeSubscription
-  extends Promise<AsyncIterator<LocationEdgeNode>>,
-    Fragmentable {
-  node: <T = LocationSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PaymentAccountPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  type?: PAYMENT_PROVIDER;
-}
-
-export interface PaymentAccountPreviousValues
-  extends Promise<PaymentAccountPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  type: () => Promise<PAYMENT_PROVIDER>;
-}
-
-export interface PaymentAccountPreviousValuesSubscription
-  extends Promise<AsyncIterator<PaymentAccountPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  type: () => Promise<AsyncIterator<PAYMENT_PROVIDER>>;
-}
-
-export interface AggregatePoliciesNode {
+export interface AggregateGuestRequirementsNode {
   count: Int;
 }
 
-export interface AggregatePolicies
-  extends Promise<AggregatePoliciesNode>,
+export interface AggregateGuestRequirements
+  extends Promise<AggregateGuestRequirementsNode>,
     Fragmentable {
   count: () => Promise<Int>;
 }
 
-export interface AggregatePoliciesSubscription
-  extends Promise<AsyncIterator<AggregatePoliciesNode>>,
+export interface AggregateGuestRequirementsSubscription
+  extends Promise<AsyncIterator<AggregateGuestRequirementsNode>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface NeighbourhoodNode {
-  id: ID_Output;
-  name: String;
-  slug: String;
-  featured: Boolean;
-  popularity: Int;
-}
-
-export interface Neighbourhood
-  extends Promise<NeighbourhoodNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  locations: <T = Promise<Array<LocationNode>>>(
-    args?: {
-      where?: LocationWhereInput;
-      orderBy?: LocationOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  name: () => Promise<String>;
-  slug: () => Promise<String>;
-  homePreview: <T = Picture>() => T;
-  city: <T = City>() => T;
-  featured: () => Promise<Boolean>;
-  popularity: () => Promise<Int>;
-}
-
-export interface NeighbourhoodSubscription
-  extends Promise<AsyncIterator<NeighbourhoodNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  locations: <T = Promise<AsyncIterator<Array<LocationSubscription>>>>(
-    args?: {
-      where?: LocationWhereInput;
-      orderBy?: LocationOrderByInput;
-      skip?: Int;
-      after?: String;
-      before?: String;
-      first?: Int;
-      last?: Int;
-    }
-  ) => T;
-  name: () => Promise<AsyncIterator<String>>;
-  slug: () => Promise<AsyncIterator<String>>;
-  homePreview: <T = PictureSubscription>() => T;
-  city: <T = CitySubscription>() => T;
-  featured: () => Promise<AsyncIterator<Boolean>>;
-  popularity: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PricingConnectionNode {}
-
-export interface PricingConnection
-  extends Promise<PricingConnectionNode>,
-    Fragmentable {
-  pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PricingEdgeNode>>>() => T;
-  aggregate: <T = AggregatePricing>() => T;
-}
-
-export interface PricingConnectionSubscription
-  extends Promise<AsyncIterator<PricingConnectionNode>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<PricingEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregatePricingSubscription>() => T;
-}
-
-export interface PaypalInformationSubscriptionPayloadNode {
-  mutation: MutationType;
-  updatedFields?: String[];
-}
-
-export interface PaypalInformationSubscriptionPayload
-  extends Promise<PaypalInformationSubscriptionPayloadNode>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = PaypalInformation>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PaypalInformationPreviousValues>() => T;
-}
-
-export interface PaypalInformationSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PaypalInformationSubscriptionPayloadNode>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PaypalInformationSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PaypalInformationPreviousValuesSubscription>() => T;
-}
-
-export interface PaypalInformationEdgeNode {
-  cursor: String;
-}
-
-export interface PaypalInformationEdge
-  extends Promise<PaypalInformationEdgeNode>,
-    Fragmentable {
-  node: <T = PaypalInformation>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PaypalInformationEdgeSubscription
-  extends Promise<AsyncIterator<PaypalInformationEdgeNode>>,
-    Fragmentable {
-  node: <T = PaypalInformationSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PaypalInformationPreviousValuesNode {
-  id: ID_Output;
-  createdAt: DateTimeOutput;
-  email: String;
-}
-
-export interface PaypalInformationPreviousValues
-  extends Promise<PaypalInformationPreviousValuesNode>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  createdAt: () => Promise<DateTimeOutput>;
-  email: () => Promise<String>;
-}
-
-export interface PaypalInformationPreviousValuesSubscription
-  extends Promise<AsyncIterator<PaypalInformationPreviousValuesNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
-  email: () => Promise<AsyncIterator<String>>;
-}
-
-export interface AmenitiesEdgeNode {
-  cursor: String;
-}
-
-export interface AmenitiesEdge
-  extends Promise<AmenitiesEdgeNode>,
-    Fragmentable {
-  node: <T = Amenities>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface AmenitiesEdgeSubscription
-  extends Promise<AsyncIterator<AmenitiesEdgeNode>>,
-    Fragmentable {
-  node: <T = AmenitiesSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface LocationNode {
-  id: ID_Output;
-  lat: Float;
-  lng: Float;
-  address?: String;
-  directions?: String;
-}
-
-export interface Location extends Promise<LocationNode>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  lat: () => Promise<Float>;
-  lng: () => Promise<Float>;
-  neighbourHood: <T = Neighbourhood>() => T;
-  user: <T = User>() => T;
-  place: <T = Place>() => T;
-  address: () => Promise<String>;
-  directions: () => Promise<String>;
-  experience: <T = Experience>() => T;
-  restaurant: <T = Restaurant>() => T;
-}
-
-export interface LocationSubscription
-  extends Promise<AsyncIterator<LocationNode>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  lat: () => Promise<AsyncIterator<Float>>;
-  lng: () => Promise<AsyncIterator<Float>>;
-  neighbourHood: <T = NeighbourhoodSubscription>() => T;
-  user: <T = UserSubscription>() => T;
-  place: <T = PlaceSubscription>() => T;
-  address: () => Promise<AsyncIterator<String>>;
-  directions: () => Promise<AsyncIterator<String>>;
-  experience: <T = ExperienceSubscription>() => T;
-  restaurant: <T = RestaurantSubscription>() => T;
-}
-
-export interface AggregateNeighbourhoodNode {
-  count: Int;
-}
-
-export interface AggregateNeighbourhood
-  extends Promise<AggregateNeighbourhoodNode>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateNeighbourhoodSubscription
-  extends Promise<AsyncIterator<AggregateNeighbourhoodNode>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface GuestRequirementsEdgeNode {
-  cursor: String;
-}
-
-export interface GuestRequirementsEdge
-  extends Promise<GuestRequirementsEdgeNode>,
-    Fragmentable {
-  node: <T = GuestRequirements>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface GuestRequirementsEdgeSubscription
-  extends Promise<AsyncIterator<GuestRequirementsEdgeNode>>,
-    Fragmentable {
-  node: <T = GuestRequirementsSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
 }
 
 export interface MessageSubscriptionPayloadNode {
@@ -10220,28 +10446,21 @@ export interface MessageSubscriptionPayloadSubscription
   previousValues: <T = MessagePreviousValuesSubscription>() => T;
 }
 
-export interface ExperienceCategoryNode {
+export interface PictureNode {
   id: ID_Output;
-  mainColor: String;
-  name: String;
+  url: String;
 }
 
-export interface ExperienceCategory
-  extends Promise<ExperienceCategoryNode>,
-    Fragmentable {
+export interface Picture extends Promise<PictureNode>, Fragmentable {
   id: () => Promise<ID_Output>;
-  mainColor: () => Promise<String>;
-  name: () => Promise<String>;
-  experience: <T = Experience>() => T;
+  url: () => Promise<String>;
 }
 
-export interface ExperienceCategorySubscription
-  extends Promise<AsyncIterator<ExperienceCategoryNode>>,
+export interface PictureSubscription
+  extends Promise<AsyncIterator<PictureNode>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  mainColor: () => Promise<AsyncIterator<String>>;
-  name: () => Promise<AsyncIterator<String>>;
-  experience: <T = ExperienceSubscription>() => T;
+  url: () => Promise<AsyncIterator<String>>;
 }
 
 export interface CreditCardInformationPreviousValuesNode {
@@ -10310,83 +10529,80 @@ export interface CreditCardInformationSubscriptionPayloadSubscription
   previousValues: <T = CreditCardInformationPreviousValuesSubscription>() => T;
 }
 
-export interface AggregateMessageNode {
+export interface AggregateCreditCardInformationNode {
   count: Int;
 }
 
-export interface AggregateMessage
-  extends Promise<AggregateMessageNode>,
+export interface AggregateCreditCardInformation
+  extends Promise<AggregateCreditCardInformationNode>,
     Fragmentable {
   count: () => Promise<Int>;
 }
 
-export interface AggregateMessageSubscription
-  extends Promise<AsyncIterator<AggregateMessageNode>>,
+export interface AggregateCreditCardInformationSubscription
+  extends Promise<AsyncIterator<AggregateCreditCardInformationNode>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface ViewsConnectionNode {}
+export interface HouseRulesConnectionNode {}
 
-export interface ViewsConnection
-  extends Promise<ViewsConnectionNode>,
+export interface HouseRulesConnection
+  extends Promise<HouseRulesConnectionNode>,
     Fragmentable {
   pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<ViewsEdgeNode>>>() => T;
-  aggregate: <T = AggregateViews>() => T;
+  edges: <T = Promise<Array<HouseRulesEdgeNode>>>() => T;
+  aggregate: <T = AggregateHouseRules>() => T;
 }
 
-export interface ViewsConnectionSubscription
-  extends Promise<AsyncIterator<ViewsConnectionNode>>,
+export interface HouseRulesConnectionSubscription
+  extends Promise<AsyncIterator<HouseRulesConnectionNode>>,
     Fragmentable {
   pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<ViewsEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregateViewsSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<HouseRulesEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateHouseRulesSubscription>() => T;
 }
 
-export interface ExperienceEdgeNode {
+export interface PictureEdgeNode {
   cursor: String;
 }
 
-export interface ExperienceEdge
-  extends Promise<ExperienceEdgeNode>,
-    Fragmentable {
-  node: <T = Experience>() => T;
+export interface PictureEdge extends Promise<PictureEdgeNode>, Fragmentable {
+  node: <T = Picture>() => T;
   cursor: () => Promise<String>;
 }
 
-export interface ExperienceEdgeSubscription
-  extends Promise<AsyncIterator<ExperienceEdgeNode>>,
+export interface PictureEdgeSubscription
+  extends Promise<AsyncIterator<PictureEdgeNode>>,
     Fragmentable {
-  node: <T = ExperienceSubscription>() => T;
+  node: <T = PictureSubscription>() => T;
   cursor: () => Promise<AsyncIterator<String>>;
 }
 
-export interface PaymentConnectionNode {}
+export interface BookingConnectionNode {}
 
-export interface PaymentConnection
-  extends Promise<PaymentConnectionNode>,
+export interface BookingConnection
+  extends Promise<BookingConnectionNode>,
     Fragmentable {
   pageInfo: <T = PageInfo>() => T;
-  edges: <T = Promise<Array<PaymentEdgeNode>>>() => T;
-  aggregate: <T = AggregatePayment>() => T;
+  edges: <T = Promise<Array<BookingEdgeNode>>>() => T;
+  aggregate: <T = AggregateBooking>() => T;
 }
 
-export interface PaymentConnectionSubscription
-  extends Promise<AsyncIterator<PaymentConnectionNode>>,
+export interface BookingConnectionSubscription
+  extends Promise<AsyncIterator<BookingConnectionNode>>,
     Fragmentable {
   pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<Array<PaymentEdgeSubscription>>>>() => T;
-  aggregate: <T = AggregatePaymentSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<Array<BookingEdgeSubscription>>>>() => T;
+  aggregate: <T = AggregateBookingSubscription>() => T;
 }
 
-export type Long = string;
-
 /*
-The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
+The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
 */
-export type ID_Input = string | number;
-export type ID_Output = string;
+export type String = string;
+
+export type Long = string;
 
 /*
 DateTime scalar input type, allowing Date
@@ -10414,9 +10630,10 @@ The `Boolean` scalar type represents `true` or `false`.
 export type Boolean = boolean;
 
 /*
-The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
+The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
 */
-export type String = string;
+export type ID_Input = string | number;
+export type ID_Output = string;
 
 /**
  * Type Defs
