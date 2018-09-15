@@ -21,6 +21,11 @@ type User {
   hostingExperiences: [Experience!]!
 }
 
+type Foo {
+  id: ID! @unique
+  foo: String!
+}
+
 type Place {
   id: ID! @unique
   name: String!

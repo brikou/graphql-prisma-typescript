@@ -22,6 +22,10 @@ type AggregateExperienceCategory {
   count: Int!
 }
 
+type AggregateFoo {
+  count: Int!
+}
+
 type AggregateGuestRequirements {
   count: Int!
 }
@@ -1709,6 +1713,102 @@ input ExperienceWhereUniqueInput {
   id: ID
 }
 
+type Foo {
+  id: ID!
+  foo: String!
+}
+
+type FooConnection {
+  pageInfo: PageInfo!
+  edges: [FooEdge]!
+  aggregate: AggregateFoo!
+}
+
+input FooCreateInput {
+  foo: String!
+}
+
+type FooEdge {
+  node: Foo!
+  cursor: String!
+}
+
+enum FooOrderByInput {
+  id_ASC
+  id_DESC
+  foo_ASC
+  foo_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type FooPreviousValues {
+  id: ID!
+  foo: String!
+}
+
+type FooSubscriptionPayload {
+  mutation: MutationType!
+  node: Foo
+  updatedFields: [String!]
+  previousValues: FooPreviousValues
+}
+
+input FooSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: FooWhereInput
+  AND: [FooSubscriptionWhereInput!]
+  OR: [FooSubscriptionWhereInput!]
+  NOT: [FooSubscriptionWhereInput!]
+}
+
+input FooUpdateInput {
+  foo: String
+}
+
+input FooWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  foo: String
+  foo_not: String
+  foo_in: [String!]
+  foo_not_in: [String!]
+  foo_lt: String
+  foo_lte: String
+  foo_gt: String
+  foo_gte: String
+  foo_contains: String
+  foo_not_contains: String
+  foo_starts_with: String
+  foo_not_starts_with: String
+  foo_ends_with: String
+  foo_not_ends_with: String
+  AND: [FooWhereInput!]
+  OR: [FooWhereInput!]
+  NOT: [FooWhereInput!]
+}
+
+input FooWhereUniqueInput {
+  id: ID
+}
+
 type GuestRequirements {
   id: ID!
   govIssuedId: Boolean!
@@ -2605,6 +2705,12 @@ type Mutation {
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   deleteUser(where: UserWhereUniqueInput!): User
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  createFoo(data: FooCreateInput!): Foo!
+  updateFoo(data: FooUpdateInput!, where: FooWhereUniqueInput!): Foo
+  updateManyFoos(data: FooUpdateInput!, where: FooWhereInput): BatchPayload!
+  upsertFoo(where: FooWhereUniqueInput!, create: FooCreateInput!, update: FooUpdateInput!): Foo!
+  deleteFoo(where: FooWhereUniqueInput!): Foo
+  deleteManyFoos(where: FooWhereInput): BatchPayload!
   createPlace(data: PlaceCreateInput!): Place!
   updatePlace(data: PlaceUpdateInput!, where: PlaceWhereUniqueInput!): Place
   updateManyPlaces(data: PlaceUpdateInput!, where: PlaceWhereInput): BatchPayload!
@@ -5255,6 +5361,9 @@ type Query {
   user(where: UserWhereUniqueInput!): User
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  foo(where: FooWhereUniqueInput!): Foo
+  foos(where: FooWhereInput, orderBy: FooOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Foo]!
+  foosConnection(where: FooWhereInput, orderBy: FooOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FooConnection!
   place(where: PlaceWhereUniqueInput!): Place
   places(where: PlaceWhereInput, orderBy: PlaceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Place]!
   placesConnection(where: PlaceWhereInput, orderBy: PlaceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PlaceConnection!
@@ -5845,6 +5954,7 @@ input ReviewWhereUniqueInput {
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  foo(where: FooSubscriptionWhereInput): FooSubscriptionPayload
   place(where: PlaceSubscriptionWhereInput): PlaceSubscriptionPayload
   pricing(where: PricingSubscriptionWhereInput): PricingSubscriptionPayload
   guestRequirements(where: GuestRequirementsSubscriptionWhereInput): GuestRequirementsSubscriptionPayload
